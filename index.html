@@ -1,0 +1,472 @@
+<!DOCTYPE html> 
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Résumé — Mesures de Sécurité Aéronautique (CQPM)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --bg: #f5f4f0; --surface: #ffffff; --border: rgba(0,0,0,0.1); --text: #1a1a18; --text-muted: #6b6b65; --radius: 12px; --radius-sm: 8px; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem 1rem 4rem; }
+  .page { max-width: 820px; margin: 0 auto; }
+
+  /* LOGIN */
+  #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
+  .login-box { background: #1a1a18; border-radius: 16px; padding: 2.5rem 2rem; width: 100%; max-width: 380px; text-align: center; }
+  .login-box .plane { font-size: 3rem; margin-bottom: 1rem; }
+  .login-box h1 { color: white; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .login-box p { color: rgba(255,255,255,0.45); font-size: 13px; margin-bottom: 1.5rem; }
+  .login-box input { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1.5px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07); color: white; font-size: 15px; font-family: monospace; letter-spacing: 0.05em; outline: none; margin-bottom: 0.75rem; }
+  .login-box input::placeholder { color: rgba(255,255,255,0.3); letter-spacing: 0; font-family: 'DM Sans', sans-serif; }
+  .login-box input:focus { border-color: #D85A30; }
+  .login-box button { width: 100%; padding: 12px; border-radius: 8px; background: #D85A30; color: white; font-size: 15px; font-weight: 600; border: none; cursor: pointer; }
+  .login-box button:active { opacity: 0.85; }
+  .error-msg { color: #F0997B; font-size: 13px; margin-top: 0.5rem; display: none; }
+
+  /* CONTENT */
+  #content { display: none; }
+  header { margin-bottom: 2rem; padding: 1.5rem 2rem; background: #1a1a18; border-radius: var(--radius); position: relative; overflow: hidden; }
+  header::before { content: '✈'; position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 4rem; opacity: 0.08; }
+  header .badge { display: inline-block; background: #D85A30; color: white; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; padding: 3px 10px; border-radius: 20px; margin-bottom: 0.6rem; text-transform: uppercase; }
+  header h1 { color: #ffffff; font-size: 1.4rem; font-weight: 600; line-height: 1.3; }
+  header p { color: rgba(255,255,255,0.5); font-size: 13px; margin-top: 0.4rem; }
+  .tip { background: #E6F1FB; border: 0.5px solid #B5D4F4; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: #185FA5; margin-bottom: 1.5rem; display: flex; gap: 8px; align-items: center; }
+  .chapter { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); margin-bottom: 1rem; overflow: hidden; }
+  .chapter-header { padding: 1rem 1.25rem; cursor: pointer; display: flex; align-items: center; gap: 12px; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+  .num { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.04em; white-space: nowrap; flex-shrink: 0; }
+  .chapter-title { font-size: 15px; font-weight: 500; flex: 1; }
+  .chevron { width: 18px; height: 18px; opacity: 0.4; transition: transform 0.25s; flex-shrink: 0; }
+  .chapter-body { display: none; padding: 0 1.25rem 1.25rem; border-top: 0.5px solid var(--border); }
+  .section { margin-top: 1rem; }
+  .section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; padding-bottom: 5px; border-bottom: 0.5px solid var(--border); }
+  .item { display: flex; gap: 9px; align-items: flex-start; padding: 4px 0; font-size: 14px; line-height: 1.55; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 8px; flex-shrink: 0; }
+  .alert { margin-top: 0.75rem; padding: 9px 13px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.55; display: flex; gap: 9px; align-items: flex-start; }
+  .alert svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 0.6rem; }
+  @media (max-width: 520px) { .grid2 { grid-template-columns: 1fr; } }
+  .card-mini { padding: 9px 11px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); font-size: 13px; line-height: 1.5; background: #fafaf8; }
+  .card-mini-title { font-weight: 600; font-size: 12px; margin-bottom: 3px; }
+  .tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 0.5rem; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
+  .ch-red .chapter-header { background: #FAECE7; } .ch-red .num { background: #D85A30; color: white; } .ch-red .chapter-title { color: #7A2E10; } .ch-red .dot { background: #D85A30; }
+  .ch-orange .chapter-header { background: #FAEEDA; } .ch-orange .num { background: #EF9F27; color: #3a2000; } .ch-orange .chapter-title { color: #7A4A00; } .ch-orange .dot { background: #EF9F27; }
+  .ch-blue .chapter-header { background: #E6F1FB; } .ch-blue .num { background: #378ADD; color: white; } .ch-blue .chapter-title { color: #0D4A82; } .ch-blue .dot { background: #378ADD; }
+  .ch-teal .chapter-header { background: #E1F5EE; } .ch-teal .num { background: #1D9E75; color: white; } .ch-teal .chapter-title { color: #0A5940; } .ch-teal .dot { background: #1D9E75; }
+  .ch-purple .chapter-header { background: #EEEDFE; } .ch-purple .num { background: #7F77DD; color: white; } .ch-purple .chapter-title { color: #3C3489; } .ch-purple .dot { background: #7F77DD; }
+  .ch-gray .chapter-header { background: #F1EFE8; } .ch-gray .num { background: #888780; color: white; } .ch-gray .chapter-title { color: #3a3a38; } .ch-gray .dot { background: #888780; }
+  .ch-green .chapter-header { background: #EAF3DE; } .ch-green .num { background: #639922; color: white; } .ch-green .chapter-title { color: #2d5a0a; } .ch-green .dot { background: #639922; }
+  .al-danger { background: #FAECE7; color: #7A2E10; border-left: 3px solid #D85A30; } .al-danger svg { color: #D85A30; }
+  .al-info { background: #E6F1FB; color: #0D4A82; border-left: 3px solid #378ADD; } .al-info svg { color: #378ADD; }
+  .al-warning { background: #FAEEDA; color: #7A4A00; border-left: 3px solid #EF9F27; } .al-warning svg { color: #EF9F27; }
+  .tag-red { background: #F0997B; color: #4A1B0C; } .tag-blue { background: #85B7EB; color: #042C53; } .tag-green { background: #97C459; color: #173404; }
+  .tag-amber { background: #FAC775; color: #412402; } .tag-gray { background: #B4B2A9; color: #2C2C2A; } .tag-teal { background: #5DCAA5; color: #04342C; }
+  footer { text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 2rem; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="plane">✈️</div>
+    <h1>Résumé de cours</h1>
+    <p>CQPM — Mécanique Cabine Aéronautique<br>Accès réservé à la promotion</p>
+    <input type="password" id="pwd-input" placeholder="Mot de passe" />
+    <button onclick="checkPassword()">Accéder au résumé</button>
+    <div class="error-msg" id="error-msg">Mot de passe incorrect ❌</div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div id="content">
+<div class="page">
+
+<header>
+  <div class="badge">CQPM — Mécanique Cabine Aéronautique</div>
+  <h1>Mesures de Sécurité & Opérations d'Atelier</h1>
+  <p>Résumé interactif — Document N°1251 · AFMAé / Safran</p>
+</header>
+
+<div class="tip">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+  Appuie sur chaque chapitre pour afficher ou masquer son contenu.
+</div>
+
+<div class="chapter ch-red">
+  <div class="chapter-header">
+    <span class="num">Ch. 1</span><span class="chapter-title">Généralités & Accidents du travail</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="chapter-body">
+    <div class="section">
+      <div class="section-title">L'iceberg des probabilités (Heinrich)</div>
+      <div class="item"><span class="dot"></span>Pour 1 accident mortel → 30 graves → 300 bénins → 3 000 presque-accidents → 30 000 comportements dangereux</div>
+      <div class="item"><span class="dot"></span>Le hasard ne tient qu'une place infime. Les causes latentes sont identifiables et évitables.</div>
+      <div class="item"><span class="dot"></span>Agir sur les incidents réduit proportionnellement les accidents graves</div>
+    </div>
+    <div class="alert al-danger">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Les jeunes de moins de 26 ans en intérim/apprentissage ont <strong>3 fois plus</strong> de risques d'accident que leurs aînés.
+    </div>
+    <div class="section">
+      <div class="section-title">Obligations légales (Code du travail L230-3)</div>
+      <div class="item"><span class="dot"></span>Prendre soin de sa propre sécurité ET de celle des autres</div>
+      <div class="item"><span class="dot"></span>Respecter les procédures, consignes et équipements mis à disposition</div>
+    </div>
+  </div>
+</div>
+
+<div class="chapter ch-orange">
+  <div class="chapter-header">
+    <span class="num">Ch. 2</span><span class="chapter-title">Gestes et postures</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="chapter-body">
+    <div class="alert al-warning">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      10 kg de charge = <strong>150 kg</strong> supportés par les lombaires L3/L4 si mauvaise posture !
+    </div>
+    <div class="section">
+      <div class="section-title">Technique correcte</div>
+      <div class="grid2">
+        <div class="card-mini"><div class="card-mini-title">Soulever</div>Pieds écartés, dos droit, fléchir les jambes. Forcer avec les jambes, pas le dos.</div>
+        <div class="card-mini"><div class="card-mini-title">Porter</div>Charge serrée au corps, corps redressé, déplacement stable.</div>
+        <div class="card-mini"><div class="card-mini-title">Déposer</div>Fléchir les jambes en maintenant le dos bien droit.</div>
+        <div class="card-mini"><div class="card-mini-title" style="color:#993C1D">Évolution sans précaution</div>Lombalgie → Sciatique → Hernie discale (opération)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="chapter ch-red">
+  <div class="chapter-header">
+    <span class="num">Ch. 3</span><span class="chapter-title">Dangers liés à l'électricité</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="chapter-body">
+    <div class="section">
+      <div class="section-title">Tensions sur avion nouvelle génération</div>
+      <div class="tags"><span class="tag tag-blue">115V triphasé / 400Hz</span><span class="tag tag-amber">24V alternatif / 400Hz</span><span class="tag tag-gray">24V continu</span></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Effets du courant alternatif sur le corps</div>
+      <div class="grid2">
+        <div class="card-mini"><div class="card-mini-title" style="color:#993C1D">1 A</div>Arrêt du cœur</div>
+        <div class="card-mini"><div class="card-mini-title" style="color:#993C1D">50 mA</div>Fibrillation cardiaque irréversible</div>
+        <div class="card-mini"><div class="card-mini-title" style="color:#993C1D">30 mA</div>Paralysie respiratoire</div>
+        <div class="card-mini"><div class="card-mini-title" style="color:#993C1D">10 mA</div>Non-lâcher, contraction musculaire</div>
+      </div>
+      <div class="item" style="margin-top:8px"><span class="dot"></span>Peau résiste jusqu'à 50V si sèche. Humide = plus aucune protection !</div>
+      <div class="item"><span class="dot"></span>Organes vitaux 30 à 50× moins résistants que la peau.</div>
+    </div>
+    <div class="section">
+      <div class="section-title">Précautions clés</div>
+      <div class="item"><span class="dot"></span>Tirer le "BREACKER" + étiquette de sécurité + clip de blocage avant intervention</div>
+      <div class="item"><span class="dot"></span>Sur GTR/GTP : attendre <strong>20 minutes minimum</strong> après arrêt moteur (décharge condensateurs)</div>
+      <div class="item"><span class="dot"></span>Ne jamais remettre sous tension sans vérifier l'absence de personnel sur circuits annexes</div>
+      <div class="item"><span class="dot"></span>Sur avion : ne jamais laisser sous tension sans surveillance (risque incendie)</div>
+    </div>
+  </div>
+</div>
+
+<div class="chapter ch-blue">
+  <div class="chapter-header">
+    <span class="num">Ch. 4</span><span class="chapter-title">Dangers liés aux fluides liquides</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="chapter-body">
+    <div class="section">
+      <div class="section-title">Fluides hydrauliques</div>
+      <div class="grid2">
+        <div class="card-mini"><div class="card-mini-title">H5606 (minéral)</div>Peu dangereux. Contact répété peut sensibiliser la peau.</div>
+        <div class="card-mini"><div class="card-mini-title" style="color:#993C1D">Skydrol (ester phosphate)</div>Irritant yeux et peau. EPI obligatoires : gants, lunettes, tablier cuir.</div>
+      </div>
+    </div>
+    <div class="alert al-danger">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Projection Skydrol dans les yeux : rincer <strong>5 minutes</strong> et aller à l'infirmerie/urgences en précisant "ester de phosphate".
+    </div>
+    <div class="section">
+      <div class="section-title">Avant toute intervention hydraulique</div>
+      <div class="item"><span class="dot"></span>Vérifier absence d'étiquette DANGER sur commandes</div>
+      <div class="item"><span class="dot"></span>Électropompes sur OFF avec étiquette DANGER</div>
+      <div class="item"><span class="dot"></span>Chuter la pression du circuit + dépressuriser</div>
+      <div class="item"><span class="dot"></span>Manœuvres commandes de vol : liaison interphone sol/poste obligatoire + vigie</div>
+    </div>
+    <div class="section">
+      <div class="section-title">Carburants (kérosène)</div>
+      <div class="item"><span class="dot"></span>Vapeurs inflammables dès <strong>38°C</strong> → risque explosion</div>
+      <div class="item"><span class="dot"></span>Risques : cutanés, respiratoires (somnolence, leucémie), digestifs (coma)</div>
+      <div class="item"><span class="dot"></span>L'accoutumance à l'odeur est trompeuse — le danger persiste !</div>
+      <div class="item"><span class="dot"></span>Mise à la terre obligatoire lors des pleins (prévention arc électrostatique)</div>
+    </div>
+    <div class="section">
+      <div class="section-title">Symboles de danger chimique</div>
+      <div class="tags">
+        <span class="tag tag-red">T / T+ : Toxique</span><span class="tag tag-amber">F / F+ : Inflammable</span>
+        <span class="tag tag-amber">O : Comburant</span><span class="tag tag-red">E : Explosif</span>
+        <span class="tag tag-gray">C : Corrosif</span><span class="tag tag-gray">Xn : Nocif</span>
+        <span class="tag tag-gray">Xi : Irritant</span><span class="tag tag-green">N : Dangereux env.</span>
+      </div>
+    </div>
+    <div class="alert al-info">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      Contact chimique sur la peau : rincer à l'eau <strong>15 minutes</strong>. Ne jamais transvaser dans un récipient alimentaire.
+    </div>
+  </div>
+</div>
+
+<div class="chapter ch-teal">
+  <div class="chapter-header">
+    <span class="num">Ch. 5</span><span class="chapter-title">Dangers liés aux fluides gazeux</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="chapter-body">
+    <div class="section">
+      <div class="section-title">Circuit pneumatique</div>
+      <div class="item"><span class="dot"></span>Fuites d'air pouvant atteindre <strong>300°C</strong> au niveau GTR/APU → risque brûlures</div>
+      <div class="item"><span class="dot"></span>Monter la pression progressivement lors des essais en atelier</div>
+    </div>
+    <div class="section">
+      <div class="section-title">Oxygène — Précautions strictes</div>
+      <div class="item"><span class="dot"></span>Interdiction absolue de fumer. Éliminer tout corps gras (chiffons, outils, vêtements)</div>
+      <div class="item"><span class="dot"></span>Ouvrir/fermer les robinets <strong>lentement à la main</strong> (éviter échauffement)</div>
+      <div class="item"><span class="dot"></span>Joints en cuivre uniquement. Proscrire téflon et vaseline.</div>
+      <div class="item"><span class="dot"></span>Pression minimale bouteille : <strong>50 psi</strong> (ne jamais vider totalement)</div>
+      <div class="item"><span class="dot"></span>Générateur chimique O₂ percuté : attendre <strong>1 heure</strong> avant intervention (risque brûlures)</div>
+    </div>
+    <div class="section">
+      <div class="section-title">Azote (N₂) — Ogive noire</div>
+      <div class="item"><span class="dot"></span>Gaz lourd, sec, neutre et <strong>asphyxiant</strong>. Inodore → danger non détectable</div>
+      <div class="item"><span class="dot"></span>Stockage liquide à <strong>−196°C</strong> → équipements spéciaux contre brûlures cryogéniques</div>
+      <div class="item"><span class="dot"></span>Peut s'accumuler dans endroits confinés, particulièrement au sol</div>
+    </div>
+    <div class="section">
+      <div class="section-title">Code couleur ogives bouteilles (norme 2006)</div>
+      <div class="tags">
+        <span class="tag tag-teal">Vert vif : Gaz inertes/asphyxiants</span><span class="tag tag-blue">Bleu clair : Gaz oxydants</span>
+        <span class="tag tag-red">Rouge : Gaz inflammables</span><span class="tag tag-amber">Jaune : Gaz toxiques/corrosifs</span>
+        <span class="tag tag-gray">Noir : Azote</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="chapter ch-red">
+  <div class="chapter-header">
+    <span class="num">Ch. 6–7</span><span class="chapter-title">Risque incendie & Incendie sur avion</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="chapter-body">
+    <div class="section">
+      <div class="section-title">Triangle du feu — 3 conditions nécessaires</div>
+      <div class="tags"><span class="tag tag-red">Source de chaleur</span><span class="tag tag-blue">Présence d'oxygène</span><span class="tag tag-amber">Matière combustible</span></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Classes de feu + extincteurs adaptés</div>
+      <div class="grid2">
+        <div class="card-mini"><div class="card-mini-title">Classe A — Feux secs</div>Bois, papier, tissu → Eau pulvérisée</div>
+        <div class="card-mini"><div class="card-mini-title">Classe B — Feux gras</div>Essence, huile, graisse → Poudre / CO₂</div>
+        <div class="card-mini"><div class="card-mini-title">Classe C — Feux de gaz</div>Acétylène, butane → Couper le gaz !</div>
+        <div class="card-mini"><div class="card-mini-title">Classe D — Feux de métaux</div>Magnésium, aluminium → Poudres spéciales</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Types d'extincteurs</div>
+      <div class="item"><span class="dot"></span><strong>Eau pulvérisée</strong> : feux classe A (refroidissement)</div>
+      <div class="item"><span class="dot"></span><strong>Poudre</strong> : feux classe B (étouffement). Ne jamais utiliser sur une personne !</div>
+      <div class="item"><span class="dot"></span><strong>CO₂ neige carbonique (−90°C)</strong> : feux électriques, ne laisse aucune trace</div>
+    </div>
+    <div class="alert al-warning">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      1ère minute = quelques verres d'eau. 2e minute = seaux. 3e minute = tonnes. <strong>Agir vite !</strong>
+    </div>
+    <div class="section">
+      <div class="section-title">Incendie sur avion</div>
+      <div class="item"><span class="dot"></span><strong>Feu cabine</strong> : alerter équipage, attaquer avec extincteurs de bord, fermer ouvertures pour limiter O₂</div>
+      <div class="item"><span class="dot"></span><strong>Feu train</strong> : poudre ou brouillard d'eau. Approche par avant/arrière uniquement — <strong>jamais par les côtés</strong> (pneus éclatent par les flancs)</div>
+      <div class="item"><span class="dot"></span>Ne jamais fumer dans les hangars, véhicules, avions, aires de trafic</div>
+    </div>
+    <div class="section">
+      <div class="section-title">Pendant l'incendie — Règles de survie</div>
+      <div class="item"><span class="dot"></span>Alerter le 18 avec lieu, origine, importance et risques associés</div>
+      <div class="item"><span class="dot"></span>Ne jamais emprunter ascenseur ou monte-charge</div>
+      <div class="item"><span class="dot"></span>Circuler au ras du sol (air frais, sans fumée nocive)</div>
+      <div class="item"><span class="dot"></span>Porte mouillée retient le feu 1 à 2 minutes</div>
+    </div>
+  </div>
+</div>
+
+<div class="chapter ch-purple">
+  <div class="chapter-header">
+    <span class="num">Ch. 8</span><span class="chapter-title">Dangers cachés</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="chapter-body">
+    <div class="section">
+      <div class="section-title">Nuisances sonores</div>
+      <div class="item"><span class="dot"></span>Avion = <strong>120 dBA</strong> (seuil de douleur). +3 dBA = bruit doublé.</div>
+      <div class="item"><span class="dot"></span>Le bruit détruit les cils vibratoires → surdité progressive et irréversible</div>
+    </div>
+    <div class="section">
+      <div class="section-title">Hélices & turbopropulseurs</div>
+      <div class="item"><span class="dot"></span>Continuent de tourner silencieusement après arrêt moteur (inertie) → danger invisible</div>
+      <div class="item"><span class="dot"></span>Moteur à piston à l'arrêt : retour d'hélice possible. Vérifier clé de contact retirée et magnétos.</div>
+    </div>
+    <div class="section">
+      <div class="section-title">Radar météo</div>
+      <div class="item"><span class="dot"></span>Essais : hors hangar, à <strong>100 m minimum</strong> de tout obstacle, vigie obligatoire, 270° dégagés</div>
+      <div class="item"><span class="dot"></span>Interdits lors des pleins de carburant</div>
+    </div>
+  </div>
+</div>
+
+<div class="chapter ch-green">
+  <div class="chapter-header">
+    <span class="num">Ch. 9</span><span class="chapter-title">Que faire en cas d'accident — P.E.A.</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="chapter-body">
+    <div class="alert al-danger">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <strong>3 minutes pour agir</strong> et peut-être sauver une vie.
+    </div>
+    <div class="section">
+      <div class="section-title">Les 3 étapes P.E.A.</div>
+      <div class="grid2">
+        <div class="card-mini"><div class="card-mini-title">P — Protéger</div>Identifier risques persistants. Éloigner les personnes inutiles. Ne jamais déplacer la victime sauf surexposition.</div>
+        <div class="card-mini"><div class="card-mini-title">E — Examiner (C.R.S.)</div>Consciente ? Saigne ? Respire ? Pouls sur la carotide ? Voies respiratoires obstruées ?</div>
+        <div class="card-mini"><div class="card-mini-title">A — Alerter</div>Lieu précis, nature, nombre de victimes, état, risques. Ne jamais raccrocher en premier.</div>
+        <div class="card-mini"><div class="card-mini-title">Secourir</div>Si formé A.F.P.S. → gestes de premiers secours. Envoyer quelqu'un à la rencontre des secours.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="chapter ch-gray">
+  <div class="chapter-header">
+    <span class="num">Ch. 12–13</span><span class="chapter-title">Comportement professionnel & Méthodologie</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="chapter-body">
+    <div class="section">
+      <div class="section-title">4 piliers du comportement aéronautique</div>
+      <div class="item"><span class="dot"></span><strong>Rigueur</strong> : travail méthodique, respect des normes, esprit de prévention</div>
+      <div class="item"><span class="dot"></span><strong>Responsabilité</strong> : émargement obligatoire (nom + signature) de chaque tâche réalisée</div>
+      <div class="item"><span class="dot"></span><strong>Connaissance de ses limites</strong> : ne jamais hésiter à demander aide ou conseil</div>
+      <div class="item"><span class="dot"></span><strong>Transparence</strong> : une erreur masquée volontairement = faute professionnelle grave</div>
+    </div>
+    <div class="alert al-info">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      Un travail n'est terminé que lorsque tous les documents sont validés par un émargement. Installer uniquement des éléments avec étiquette "serviceable" signée.
+    </div>
+    <div class="section">
+      <div class="section-title">Méthodologie — Ordre des étapes</div>
+      <div class="item"><span class="dot"></span>1. Prendre connaissance du travail (lire le bon de travail)</div>
+      <div class="item"><span class="dot"></span>2. Réflexion + consultation documentation (AMM, CMM)</div>
+      <div class="item"><span class="dot"></span>3. Mise en sécurité du poste (étiquettes, blocage, pressions, tensions)</div>
+      <div class="item"><span class="dot"></span>4. Aménagement poste de travail</div>
+      <div class="item"><span class="dot"></span>5. Dépose → bouchonner immédiatement chaque orifice</div>
+      <div class="item"><span class="dot"></span>6. Remontage en sens inverse selon AMM</div>
+      <div class="item"><span class="dot"></span>7. Réglage / Essai (selon documentation uniquement)</div>
+      <div class="item"><span class="dot"></span>8. Contrôle final : serrages, freinages, absence de corps étrangers (OVNIS !)</div>
+      <div class="item"><span class="dot"></span>9. Fin du travail : ôter étiquettes sécurité, ranger, vérifier caisse à outils</div>
+    </div>
+  </div>
+</div>
+
+<div class="chapter ch-gray">
+  <div class="chapter-header">
+    <span class="num">Ch. 14–15</span><span class="chapter-title">Propreté, rangement & Pratiques d'atelier</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="chapter-body">
+    <div class="section">
+      <div class="section-title">Propreté</div>
+      <div class="item"><span class="dot"></span>Principale cause de dépose prématurée d'un moteur = <strong>ingestion d'un corps étranger</strong></div>
+      <div class="item"><span class="dot"></span>Si un objet tombe pendant le remontage → stopper et localiser avant de continuer</div>
+      <div class="item"><span class="dot"></span>Déchets en téflon → poubelle spéciale téflon uniquement</div>
+    </div>
+    <div class="section">
+      <div class="section-title">Rangement & outillage</div>
+      <div class="item"><span class="dot"></span>Ne pas poser les pièces par terre ni en position instable</div>
+      <div class="item"><span class="dot"></span>Vérifier la date d'étalonnage avant utilisation (autocollant de validité)</div>
+      <div class="item"><span class="dot"></span>Si outillage absent du panneau → vérifier qu'il n'est pas oublié sur l'avion</div>
+      <div class="item"><span class="dot"></span>Sur circuit oxygène (zone ATA 35) : outils exempts de corps gras</div>
+    </div>
+    <div class="section">
+      <div class="section-title">Travail en hauteur</div>
+      <div class="item"><span class="dot"></span>Rambardes relevées obligatoires sur plateformes, nacelles et docks</div>
+      <div class="item"><span class="dot"></span>Harnais relié à point d'ancrage fixe obligatoire sur nacelle</div>
+      <div class="item"><span class="dot"></span>Véhicules autotractés : test psychotechnique + stage + avis médecine du travail</div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:2rem;">
+  <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#888780;margin-bottom:0.75rem;">Autres cours disponibles</div>
+  <a href="cours-documentation-technique.html" style="display:flex;align-items:center;gap:12px;background:#ffffff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:1rem 1.25rem;margin-bottom:0.75rem;text-decoration:none;color:#1a1a18;">
+    <span style="font-size:1.3rem;">📄</span>
+    <span>
+      <strong style="font-size:15px;display:block;">Documentation Technique</strong>
+      <span style="font-size:13px;color:#6b6b65;">Norme ATA, manuels AMM/IPC/TSM, zoning, MEL, AMTOSS</span>
+    </span>
+  </a>
+  <a href="quiz-documentation-technique.html" style="display:flex;align-items:center;gap:12px;background:#ffffff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:1rem 1.25rem;margin-bottom:0.75rem;text-decoration:none;color:#1a1a18;">
+    <span style="font-size:1.3rem;">🎯</span>
+    <span>
+      <strong style="font-size:15px;display:block;">Quiz — Documentation Technique</strong>
+      <span style="font-size:13px;color:#6b6b65;">30 questions · Timer 20 min · Correction détaillée</span>
+    </span>
+  </a>
+</div>
+
+<footer>Résumé généré par IA · Document pédagogique non contractuel · AFMAé / Safran N°1251</footer>
+</div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var PASSWORD = 'CQPM289MECCABINEAERO';
+  var SESSION_KEY = 'cqpm_auth';
+
+  // Si déjà authentifié dans la session, afficher le contenu directement
+  if (sessionStorage.getItem(SESSION_KEY) === 'ok') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+  }
+
+  function checkPassword() {
+    var input = document.getElementById('pwd-input').value;
+    if (input === PASSWORD) {
+      sessionStorage.setItem(SESSION_KEY, 'ok');
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('content').style.display = 'block';
+    } else {
+      document.getElementById('error-msg').style.display = 'block';
+      document.getElementById('pwd-input').value = '';
+    }
+  }
+
+  window.checkPassword = checkPassword;
+
+  document.getElementById('pwd-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { checkPassword(); }
+  });
+
+  var headers = document.querySelectorAll('.chapter-header');
+  for (var i = 0; i < headers.length; i++) {
+    headers[i].addEventListener('click', function() {
+      var body = this.parentElement.querySelector('.chapter-body');
+      var chevron = this.querySelector('.chevron');
+      var isOpen = body.style.display === 'block';
+      body.style.display = isOpen ? 'none' : 'block';
+      chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+    });
+  }
+});
+</script>
+</body>
+</html>
