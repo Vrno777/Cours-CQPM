@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visserie Aéronautique — CQPM-289</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep:#0f0f0d; --bg-card:#1a1a18; --bg-section:#222220;
+    --orange:#D85A30; --orange-dim:#a84420; --orange-glow:rgba(216,90,48,0.12);
+    --text:#e8e6e0; --text-muted:#8a8880; --border:#2e2e2a;
+    --green:#4caf7a; --blue:#4a9fd8; --yellow:#e8c84a; --red:#e85a4a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg-deep);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.65;}
+
+  header{background:var(--bg-card);border-bottom:2px solid var(--orange);padding:28px 32px 24px;display:flex;align-items:center;gap:20px;position:sticky;top:0;z-index:100;}
+  .back-btn{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;text-decoration:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;white-space:nowrap;transition:background .2s;}
+  .back-btn:hover{background:var(--orange-dim);}
+  .header-info{flex:1;}
+  .header-tag{font-family:'DM Mono',monospace;font-size:11px;color:var(--orange);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;}
+  header h1{font-size:1.4rem;font-weight:700;}
+
+  .container{max-width:900px;margin:0 auto;padding:36px 24px 80px;}
+
+  .intro-card{background:var(--bg-card);border:1px solid var(--border);border-left:4px solid var(--orange);border-radius:10px;padding:24px 28px;margin-bottom:36px;}
+  .intro-card p{color:var(--text-muted);font-size:14px;}
+  .intro-card strong{color:var(--text);}
+
+  .section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);margin:40px 0 14px;border-left:3px solid var(--orange);padding-left:10px;}
+
+  .accordion{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;}
+  .acc-item{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color .2s;}
+  .acc-item:hover{border-color:#3e3e3a;}
+  .acc-item.open{border-color:var(--orange);}
+  .acc-header{display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;user-select:none;list-style:none;}
+  .acc-header::-webkit-details-marker{display:none;}
+  .acc-num{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--orange);background:var(--orange-glow);border:1px solid var(--orange);border-radius:4px;padding:2px 8px;white-space:nowrap;min-width:52px;text-align:center;}
+  .acc-title{flex:1;font-weight:600;font-size:15px;}
+  .acc-arrow{font-size:12px;color:var(--text-muted);transition:transform .25s;}
+  details[open] .acc-arrow{transform:rotate(90deg);}
+  .acc-body{padding:0 20px 20px;border-top:1px solid var(--border);}
+
+  .acc-body h3{font-size:13px;font-weight:600;color:var(--orange);text-transform:uppercase;letter-spacing:.08em;margin:18px 0 8px;}
+  .acc-body p{color:var(--text-muted);font-size:14px;margin-bottom:8px;}
+  .acc-body strong{color:var(--text);}
+  .acc-body ul{list-style:none;display:flex;flex-direction:column;gap:5px;margin:8px 0 12px;}
+  .acc-body ul li{font-size:14px;color:var(--text-muted);padding-left:18px;position:relative;}
+  .acc-body ul li::before{content:'›';position:absolute;left:4px;color:var(--orange);font-weight:700;}
+  .acc-body ul li strong{color:var(--text);}
+
+  .box{border-radius:7px;padding:14px 16px;margin:14px 0;font-size:13.5px;}
+  .box-orange{background:var(--orange-glow);border:1px solid rgba(216,90,48,.35);color:#d8a080;}
+  .box-blue{background:rgba(74,159,216,.08);border:1px solid rgba(74,159,216,.3);color:#7abde8;}
+  .box-green{background:rgba(76,175,122,.08);border:1px solid rgba(76,175,122,.3);color:#7acf9a;}
+  .box-yellow{background:rgba(232,200,74,.08);border:1px solid rgba(232,200,74,.3);color:#e8c84a;}
+  .box .box-title{font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:block;}
+
+  .compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0;}
+  @media(max-width:600px){.compare-grid{grid-template-columns:1fr;}}
+  .compare-card{background:var(--bg-section);border:1px solid var(--border);border-radius:8px;padding:14px;}
+  .compare-card-title{font-family:'DM Mono',monospace;font-size:11px;color:var(--orange);font-weight:500;margin-bottom:8px;text-transform:uppercase;}
+
+  .norm-table{width:100%;border-collapse:collapse;margin:10px 0;}
+  .norm-table th{background:var(--bg-section);color:var(--orange);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);}
+  .norm-table td{padding:8px 12px;font-size:13px;color:var(--text-muted);border-bottom:1px solid var(--border);}
+  .norm-table td:first-child{font-family:'DM Mono',monospace;color:var(--orange);}
+  .norm-table tr:last-child td{border-bottom:none;}
+
+  .carac-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0;}
+  @media(max-width:500px){.carac-grid{grid-template-columns:1fr;}}
+  .carac-card{background:var(--bg-section);border:1px solid var(--border);border-radius:7px;padding:12px 14px;}
+  .carac-card-title{font-size:12px;font-weight:600;color:var(--orange);margin-bottom:4px;}
+  .carac-card p{font-size:13px;color:var(--text-muted);}
+
+  .schema-notice{background:var(--bg-section);border:1px dashed var(--border);border-radius:7px;padding:12px 16px;font-size:13px;color:var(--text-muted);margin:12px 0;text-align:center;}
+
+  footer{text-align:center;padding:20px;color:var(--text-muted);font-size:12px;border-top:1px solid var(--border);margin-top:60px;}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back-btn" href="index.html" onclick="sessionStorage.setItem('cqpm_auth','ok')">← Accueil</a>
+  <div class="header-info">
+    <div class="header-tag">CQPM-289 · Module Théorique</div>
+    <h1>🔩 Visserie Aéronautique</h1>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="intro-card">
+    <p>Ce cours couvre la <strong>visserie aéronautique</strong> : identification d'une vis, les trois systèmes (ISO, Sellers, Whitworth), lecture des références, relevé du pas et règles d'assemblage. <strong>Contenu issu du livret N°1310 — AFMAé / Safran.</strong></p>
+  </div>
+
+  <!-- ══ SECTION 1 ══ -->
+  <div class="section-label">Section 1 — Identifier une vis</div>
+  <div class="accordion">
+
+    <details class="acc-item">
+      <summary class="acc-header">
+        <span class="acc-num">§ 1</span>
+        <span class="acc-title">Les 7 caractéristiques d'une vis</span>
+        <span class="acc-arrow">›</span>
+      </summary>
+      <div class="acc-body">
+        <h3>Objectifs</h3>
+        <p>Avant toute intervention, il faut savoir <strong>identifier précisément une vis</strong> par ses caractéristiques techniques.</p>
+        <div class="carac-grid">
+          <div class="carac-card"><div class="carac-card-title">1. Matière</div><p>Nature du métal (acier, inox, titane, aluminium…)</p></div>
+          <div class="carac-card"><div class="carac-card-title">2. Diamètre</div><p>Diamètre nominal de la tige, exprimé en mm ou en fraction de pouce</p></div>
+          <div class="carac-card"><div class="carac-card-title">3. Pas</div><p>Distance entre deux sommets de filetage (en mm ou nombre de filets/pouce)</p></div>
+          <div class="carac-card"><div class="carac-card-title">4. Longueur totale</div><p>Mesurée sous la tête (sauf vis à tête fraisée)</p></div>
+          <div class="carac-card"><div class="carac-card-title">5. Partie filetée / lisse</div><p>Longueur respective des zones filetée et lisse</p></div>
+          <div class="carac-card"><div class="carac-card-title">6. Forme de la tête</div><p>Hexagonale, fraisée, cylindrique, bombée…</p></div>
+          <div class="carac-card"><div class="carac-card-title">7. Référence système</div><p>ISO, US (Sellers), Whitworth — détermine la norme applicable</p></div>
+        </div>
+        <div class="box box-orange">
+          <span class="box-title">⚠ Point clé — Longueur</span>
+          La longueur d'une vis est toujours mesurée <strong>sous la tête</strong>. Exception : la vis à tête fraisée dont la tête est comprise dans la longueur totale.
+        </div>
+      </div>
+    </details>
+
+  </div>
+
+  <!-- ══ SECTION 2 ══ -->
+  <div class="section-label">Section 2 — Les 3 systèmes de visserie</div>
+  <div class="accordion">
+
+    <details class="acc-item">
+      <summary class="acc-header">
+        <span class="acc-num">ISO</span>
+        <span class="acc-title">Visserie ISO — Système Français (Métrique)</span>
+        <span class="acc-arrow">›</span>
+      </summary>
+      <div class="acc-body">
+        <h3>Désignation</h3>
+        <p>La désignation d'une vis ISO (française) s'écrit sous la forme :</p>
+        <div class="box box-blue">
+          <span class="box-title">🔢 Format</span>
+          <strong>M8 × 80</strong><br><br>
+          <strong>M8</strong> = diamètre nominal de la vis exprimé en <strong>millimètres</strong><br>
+          <strong>80</strong> = pas du filetage exprimé en <strong>centièmes de millimètre</strong><br><br>
+          Un pas de 80 = distance entre deux sommets = 80/100 mm = <strong>0,8 mm</strong>
+        </div>
+        <h3>Caractéristiques</h3>
+        <ul>
+          <li>Système <strong>métrique</strong> — toutes les mesures en millimètres</li>
+          <li>Profil de filetage en <strong>V à 60°</strong></li>
+          <li>Le pas est exprimé en <strong>centièmes de mm</strong> dans la référence</li>
+        </ul>
+        <div class="schema-notice">📐 Se référer au support original pour les schémas de profil de filetage ISO</div>
+      </div>
+    </details>
+
+    <details class="acc-item">
+      <summary class="acc-header">
+        <span class="acc-num">US</span>
+        <span class="acc-title">Visserie Sellers — Système Américain</span>
+        <span class="acc-arrow">›</span>
+      </summary>
+      <div class="acc-body">
+        <h3>Désignation</h3>
+        <div class="box box-blue">
+          <span class="box-title">🔢 Format</span>
+          <strong>¼ – 28</strong><br><br>
+          <strong>¼</strong> = diamètre de la vis en <strong>fraction de pouce</strong><br>
+          <strong>28</strong> = nombre de filets sur une distance de <strong>1 pouce</strong>
+        </div>
+        <h3>Normes US aéronautiques</h3>
+        <table class="norm-table">
+          <tr><th>Sigle</th><th>Désignation complète</th></tr>
+          <tr><td>NAS</td><td>National Aircraft Standard</td></tr>
+          <tr><td>AN</td><td>Air Force and the Navy</td></tr>
+          <tr><td>AND</td><td>Air Force and the Navy Designation</td></tr>
+          <tr><td>MS</td><td>Military Standards</td></tr>
+          <tr><td>BAC</td><td>Boeing Aircraft Company Standards</td></tr>
+        </table>
+        <h3>Normes européennes utilisant le standard US</h3>
+        <table class="norm-table">
+          <tr><th>Sigle</th><th>Désignation complète</th></tr>
+          <tr><td>NSA</td><td>Norme Sud Aviation</td></tr>
+          <tr><td>ANSA</td><td>Aérospatiale Norme Sud Aviation</td></tr>
+        </table>
+        <div class="box box-orange">
+          <span class="box-title">⚠ À retenir</span>
+          Les références US se retrouvent directement dans l'<strong>AMM Airbus et Boeing</strong>. Toujours utiliser la référence exacte indiquée dans l'<strong>IPC</strong> du constructeur.
+        </div>
+        <div class="schema-notice">📐 Se référer au support original pour l'exemple de page AMM Airbus (slide 10)</div>
+      </div>
+    </details>
+
+    <details class="acc-item">
+      <summary class="acc-header">
+        <span class="acc-num">UK</span>
+        <span class="acc-title">Visserie Whitworth — Système Anglais</span>
+        <span class="acc-arrow">›</span>
+      </summary>
+      <div class="acc-body">
+        <h3>Origine</h3>
+        <p>Système anglais qui porte le nom de son inventeur <strong>Sir Joseph Whitworth</strong>.</p>
+        <h3>Caractéristiques</h3>
+        <ul>
+          <li><strong>Profil rond</strong> avec un angle à flanc de filet de <strong>55°</strong></li>
+          <li>Pas donné par le <strong>nombre de filets au pouce</strong></li>
+          <li>Bonne résistance à l'effort de <strong>traction et de cisaillement</strong></li>
+          <li>Assure une bonne <strong>étanchéité</strong> grâce à son profil arrondi</li>
+        </ul>
+        <h3>3 désignations de pas Whitworth</h3>
+        <table class="norm-table">
+          <tr><th>Sigle</th><th>Désignation complète</th></tr>
+          <tr><td>BSW</td><td>British Standard Whitworth</td></tr>
+          <tr><td>BSF</td><td>British Standard Fine</td></tr>
+          <tr><td>BA</td><td>British Association</td></tr>
+        </table>
+      </div>
+    </details>
+
+    <details class="acc-item">
+      <summary class="acc-header">
+        <span class="acc-num">≡</span>
+        <span class="acc-title">Comparatif des 3 systèmes</span>
+        <span class="acc-arrow">›</span>
+      </summary>
+      <div class="acc-body">
+        <div class="compare-grid">
+          <div class="compare-card">
+            <div class="compare-card-title">ISO — Français</div>
+            <ul>
+              <li>Unité : <strong>mm</strong></li>
+              <li>Format : <strong>M8 × 80</strong></li>
+              <li>Pas : en centièmes de mm</li>
+              <li>Angle filet : 60°</li>
+            </ul>
+          </div>
+          <div class="compare-card">
+            <div class="compare-card-title">Sellers — Américain</div>
+            <ul>
+              <li>Unité : <strong>pouce</strong></li>
+              <li>Format : <strong>¼ – 28</strong></li>
+              <li>Pas : nb filets / pouce</li>
+              <li>Angle filet : 60°</li>
+            </ul>
+          </div>
+          <div class="compare-card">
+            <div class="compare-card-title">Whitworth — Anglais</div>
+            <ul>
+              <li>Unité : <strong>pouce</strong></li>
+              <li>Pas : nb filets / pouce</li>
+              <li>Angle filet : <strong>55°</strong></li>
+              <li>Profil : <strong>arrondi</strong></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </details>
+
+  </div>
+
+  <!-- ══ SECTION 3 ══ -->
+  <div class="section-label">Section 3 — Relevé du pas & Têtes de vis</div>
+  <div class="accordion">
+
+    <details class="acc-item">
+      <summary class="acc-header">
+        <span class="acc-num">§ 3</span>
+        <span class="acc-title">Relevé du pas d'une vis</span>
+        <span class="acc-arrow">›</span>
+      </summary>
+      <div class="acc-body">
+        <h3>Principe</h3>
+        <p>Le relevé du pas permet d'identifier précisément le système et le pas d'une vis inconnue, à l'aide d'un <strong>peigne à filets</strong> (calibre à pas).</p>
+        <ul>
+          <li>Utiliser un peigne ISO pour les vis métriques</li>
+          <li>Utiliser un peigne Whitworth/Sellers pour les vis en pouces</li>
+          <li>Le peigne doit s'emboîter <strong>parfaitement</strong> dans le filetage sans jeu</li>
+        </ul>
+        <div class="schema-notice">📐 Se référer au support original pour les schémas de relevé du pas (slide 12)</div>
+        <div class="box box-orange">
+          <span class="box-title">⚠ Attention</span>
+          Ne jamais confondre un pas ISO et un pas Whitworth de diamètre similaire — les angles de filet sont différents (60° vs 55°). Un mélange de systèmes peut provoquer un <strong>arrachement du filetage</strong>.
+        </div>
+      </div>
+    </details>
+
+    <details class="acc-item">
+      <summary class="acc-header">
+        <span class="acc-num">§ 4</span>
+        <span class="acc-title">Têtes de vis & Empreintes</span>
+        <span class="acc-arrow">›</span>
+      </summary>
+      <div class="acc-body">
+        <h3>Principales formes de tête</h3>
+        <ul>
+          <li><strong>Hexagonale</strong> — serrage à la clé plate ou à douille</li>
+          <li><strong>Fraisée</strong> — tête noyée dans la pièce, longueur mesurée tête comprise</li>
+          <li><strong>Cylindrique</strong> — tête plate, serrage par empreinte</li>
+          <li><strong>Bombée</strong> — tête arrondie, aspect esthétique</li>
+          <li><strong>BTR (6 pans creux)</strong> — serrage à la clé Allen</li>
+          <li><strong>Torx</strong> — empreinte en étoile, anti-dérapant</li>
+        </ul>
+        <div class="schema-notice">📐 Se référer au support original pour les illustrations des différentes têtes et empreintes (slide 13)</div>
+      </div>
+    </details>
+
+  </div>
+
+  <!-- ══ SECTION 4 ══ -->
+  <div class="section-label">Section 4 — Assemblages & Règles de montage</div>
+  <div class="accordion">
+
+    <details class="acc-item">
+      <summary class="acc-header">
+        <span class="acc-num">§ 5</span>
+        <span class="acc-title">Précautions lors des assemblages</span>
+        <span class="acc-arrow">›</span>
+      </summary>
+      <div class="acc-body">
+        <h3>Règles générales</h3>
+        <ul>
+          <li>Les constructeurs réalisent leurs assemblages en fonction des caractéristiques : <strong>matière, diamètre, longueur, pas</strong></li>
+          <li>Assortir vis, écrou et rondelles de <strong>même nature de métal</strong> (éviter la corrosion galvanique)</li>
+          <li>Choisir une vis de <strong>longueur convenable</strong> en fonction de l'assemblage</li>
+          <li>Utiliser des <strong>rondelles</strong> pour éviter de marquer les pièces</li>
+          <li>Respecter toujours la référence indiquée par le constructeur dans l'<strong>IPC</strong></li>
+        </ul>
+        <div class="schema-notice">📐 Se référer au support original pour les schémas d'assemblage (slide 14)</div>
+      </div>
+    </details>
+
+    <details class="acc-item">
+      <summary class="acc-header">
+        <span class="acc-num">§ 6</span>
+        <span class="acc-title">Montage d'un boulon</span>
+        <span class="acc-arrow">›</span>
+      </summary>
+      <div class="acc-body">
+        <h3>Définition</h3>
+        <p>Un boulon est composé d'une <strong>vis + un écrou de même système et même diamètre</strong>.</p>
+        <h3>Règles de montage</h3>
+        <ul>
+          <li>Intercaler une <strong>rondelle plate</strong> entre l'écrou et la pièce à assembler</li>
+          <li>Choisir une vis avec la <strong>bonne longueur</strong></li>
+          <li>La partie lisse doit être en <strong>retrait de 1 à 2 filets</strong> dans l'assemblage</li>
+          <li><strong>1 à 4 filets maximum</strong> doivent dépasser de l'écrou</li>
+          <li>Respecter la <strong>matière</strong> de l'assemblage</li>
+        </ul>
+        <div class="box box-orange">
+          <span class="box-title">⚠ Règle rondelles</span>
+          Éviter l'empilage des rondelles :<br>
+          <strong>3 rondelles maximum</strong> au total<br>
+          <strong>2 maximum</strong> sous la tête<br>
+          <strong>1 maximum</strong> sous l'écrou
+        </div>
+        <div class="schema-notice">📐 Se référer au support original pour les schémas de montage boulon (slide 17)</div>
+      </div>
+    </details>
+
+    <details class="acc-item">
+      <summary class="acc-header">
+        <span class="acc-num">§ 7</span>
+        <span class="acc-title">Montage des goujons</span>
+        <span class="acc-arrow">›</span>
+      </summary>
+      <div class="acc-body">
+        <h3>Définition</h3>
+        <p>Un goujon est une tige filetée aux deux extrémités, <strong>sans tête</strong>. Il est vissé en permanence dans une pièce (côté embase) et reçoit un écrou de l'autre côté (côté écrou).</p>
+        <div class="schema-notice">📐 Se référer au support original pour les schémas de montage goujons (slide 16)</div>
+        <div class="box box-blue">
+          <span class="box-title">💡 Rappel IPC</span>
+          Pour tout remplacement de visserie, <strong>toujours consulter l'IPC</strong> du constructeur pour utiliser la référence exacte — ne jamais substituer par une visserie standard non certifiée.
+        </div>
+      </div>
+    </details>
+
+  </div>
+
+</div>
+
+<footer>CQPM-289 Mécanicien Cabine Aéronautique · Visserie Aéronautique Livret N°1310 · AFMAé / Safran · Document pédagogique uniquement</footer>
+
+<script>
+  document.querySelectorAll('details').forEach(d => {
+    d.addEventListener('toggle', () => d.classList.toggle('open', d.open));
+  });
+</script>
+</body>
+</html>
