@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz — Mesures de Sécurité Aéronautique (CQPM)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+  :root {
+    --bg: #0f0f0d; --surface: #1a1a18; --surface2: #222220;
+    --border: rgba(255,255,255,0.08); --text: #f0f0ee; --text-muted: #7a7a72;
+    --orange: #D85A30; --green: #4caf7d; --red: #e05555; --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  .quiz-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem; display: flex; align-items: center;
+    justify-content: space-between; position: sticky; top: 0; z-index: 10;
+  }
+  .back-btn {
+    background: none; border: 1px solid var(--border); color: var(--text-muted);
+    padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px;
+    font-family: 'DM Sans', sans-serif; transition: all 0.2s; text-decoration: none;
+    display: inline-block;
+  }
+  .back-btn:hover { border-color: var(--orange); color: var(--orange); }
+  .quiz-title { font-size: 14px; font-weight: 600; color: var(--text-muted); }
+  .timer-box {
+    font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 500;
+    color: var(--orange); background: rgba(216,90,48,0.1);
+    padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(216,90,48,0.2);
+  }
+  .timer-box.warning { color: var(--red); background: rgba(224,85,85,0.1); border-color: rgba(224,85,85,0.2); }
+
+  /* PROGRESS */
+  .progress-bar-wrap { background: var(--surface); padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border); }
+  .progress-info { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+  .progress-bar { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--orange); border-radius: 2px; transition: width 0.4s ease; }
+
+  /* INTRO */
+  #intro-screen {
+    max-width: 600px; margin: 0 auto; padding: 3rem 1.5rem; text-align: center;
+  }
+  .intro-icon { font-size: 3rem; margin-bottom: 1.25rem; }
+  .intro-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .intro-sub { color: var(--text-muted); font-size: 14px; margin-bottom: 2rem; line-height: 1.6; }
+  .intro-stats {
+    display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap;
+  }
+  .intro-stat {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem 1.5rem; flex: 1; min-width: 120px;
+  }
+  .intro-stat-val { font-size: 1.4rem; font-weight: 700; color: var(--orange); margin-bottom: 0.2rem; }
+  .intro-stat-label { font-size: 12px; color: var(--text-muted); }
+  .start-btn {
+    background: var(--orange); color: white; border: none; border-radius: 8px;
+    padding: 14px 36px; font-size: 16px; font-weight: 600; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; transition: opacity 0.2s;
+  }
+  .start-btn:hover { opacity: 0.88; }
+
+  /* QUESTION */
+  #quiz-screen { display: none; }
+  .quiz-body { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .question-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.75rem; margin-bottom: 1.5rem;
+  }
+  .question-meta { font-size: 11px; color: var(--orange); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.75rem; }
+  .question-text { font-size: 1.05rem; font-weight: 500; line-height: 1.55; }
+  .options-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .option-btn {
+    display: flex; align-items: flex-start; gap: 1rem;
+    background: var(--surface2); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 1rem 1.25rem; cursor: pointer; text-align: left;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text);
+    transition: all 0.18s; width: 100%;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--orange); background: rgba(216,90,48,0.06); }
+  .option-letter {
+    width: 26px; height: 26px; min-width: 26px; border-radius: 6px;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: var(--text-muted); font-family: 'DM Mono', monospace;
+  }
+  .option-btn.correct { border-color: var(--green); background: rgba(76,175,125,0.08); }
+  .option-btn.correct .option-letter { background: var(--green); color: white; border-color: var(--green); }
+  .option-btn.wrong { border-color: var(--red); background: rgba(224,85,85,0.08); }
+  .option-btn.wrong .option-letter { background: var(--red); color: white; border-color: var(--red); }
+  .option-btn:disabled { cursor: default; }
+
+  .feedback-box { margin-top: 1rem; padding: 0.9rem 1.1rem; border-radius: 8px; font-size: 13.5px; line-height: 1.5; display: none; }
+  .feedback-box.show { display: block; }
+  .feedback-box.correct-fb { background: rgba(76,175,125,0.1); border: 1px solid rgba(76,175,125,0.25); color: #7dd4a8; }
+  .feedback-box.wrong-fb { background: rgba(224,85,85,0.1); border: 1px solid rgba(224,85,85,0.25); color: #e88a8a; }
+
+  .quiz-nav { display: flex; justify-content: flex-end; margin-top: 1.5rem; }
+  .next-btn {
+    background: var(--orange); color: white; border: none; border-radius: 8px;
+    padding: 12px 28px; font-size: 15px; font-weight: 600; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; transition: opacity 0.2s; display: none;
+  }
+  .next-btn:hover { opacity: 0.88; }
+  .next-btn.show { display: block; }
+
+  /* RESULTS */
+  #result-screen { display: none; max-width: 680px; margin: 0 auto; padding: 3rem 1.5rem; text-align: center; }
+  .result-icon { font-size: 3.5rem; margin-bottom: 1.25rem; }
+  .result-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .result-mention {
+    display: inline-block; padding: 5px 16px; border-radius: 20px;
+    font-size: 13px; font-weight: 600; margin-bottom: 2rem; letter-spacing: 0.05em;
+  }
+  .mention-insuf { background: rgba(224,85,85,0.15); color: #e88a8a; border: 1px solid rgba(224,85,85,0.3); }
+  .mention-passable { background: rgba(255,180,50,0.15); color: #f5c860; border: 1px solid rgba(255,180,50,0.3); }
+  .mention-bien { background: rgba(76,175,125,0.15); color: #7dd4a8; border: 1px solid rgba(76,175,125,0.3); }
+  .mention-tres-bien { background: rgba(216,90,48,0.15); color: var(--orange); border: 1px solid rgba(216,90,48,0.3); }
+  .score-circle {
+    width: 140px; height: 140px; border-radius: 50%;
+    background: var(--surface); border: 3px solid var(--orange);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin: 0 auto 2rem;
+  }
+  .score-num { font-size: 2.2rem; font-weight: 700; color: var(--orange); }
+  .score-denom { font-size: 13px; color: var(--text-muted); }
+  .stats-row { display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.5rem; flex: 1; min-width: 120px; }
+  .stat-val { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.2rem; }
+  .stat-label { font-size: 12px; color: var(--text-muted); }
+  .stat-card.good .stat-val { color: var(--green); }
+  .stat-card.bad .stat-val { color: var(--red); }
+  .correction-section { text-align: left; margin-top: 2.5rem; }
+  .correction-title { font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+  .correction-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 0.75rem; }
+  .correction-item.ok { border-left: 3px solid var(--green); }
+  .correction-item.ko { border-left: 3px solid var(--red); }
+  .correction-q { font-size: 13.5px; font-weight: 500; margin-bottom: 0.4rem; }
+  .correction-detail { font-size: 12.5px; color: var(--text-muted); }
+  .correction-detail .ok-ans { color: var(--green); font-weight: 600; }
+  .correction-detail .ko-ans { color: var(--red); font-weight: 600; }
+  .result-actions { display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap; }
+  .btn-retry { background: var(--orange); color: white; border: none; border-radius: 8px; padding: 12px 28px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: opacity 0.2s; }
+  .btn-retry:hover { opacity: 0.88; }
+  .btn-home { background: none; color: var(--text-muted); border: 1px solid var(--border); border-radius: 8px; padding: 12px 28px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: none; display: inline-flex; align-items: center; transition: all 0.2s; }
+  .btn-home:hover { border-color: var(--orange); color: var(--orange); }
+
+  @media (max-width: 500px) {
+    .quiz-body { padding: 1.25rem 1rem; }
+    .question-card { padding: 1.25rem; }
+    .quiz-title { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER (toujours visible) -->
+<div class="quiz-header">
+  <a class="back-btn" href="index.html">← Accueil</a>
+  <span class="quiz-title">Quiz — Sécurité Aéronautique</span>
+  <div class="timer-box" id="timer" style="visibility:hidden">20:00</div>
+</div>
+
+<!-- INTRO -->
+<div id="intro-screen">
+  <div class="intro-icon">🎯</div>
+  <div class="intro-title">Quiz — Sécurité Aéronautique</div>
+  <div class="intro-sub">CQPM-289 · Mécanicien Cabine<br>Teste tes connaissances sur les mesures de sécurité aéronautique.</div>
+  <div class="intro-stats">
+    <div class="intro-stat">
+      <div class="intro-stat-val">30</div>
+      <div class="intro-stat-label">Questions</div>
+    </div>
+    <div class="intro-stat">
+      <div class="intro-stat-val">20 min</div>
+      <div class="intro-stat-label">Durée</div>
+    </div>
+    <div class="intro-stat">
+      <div class="intro-stat-val">50 / 50</div>
+      <div class="intro-stat-label">Mémo / Compréhension</div>
+    </div>
+  </div>
+  <button class="start-btn" onclick="startQuiz()">Démarrer le quiz →</button>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-screen">
+  <div class="progress-bar-wrap">
+    <div class="progress-info">
+      <span id="q-counter">Question 1 / 30</span>
+      <span id="q-score-live">Score : 0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+  <div class="quiz-body">
+    <div class="question-card">
+      <div class="question-meta" id="q-type-label">Mémorisation</div>
+      <div class="question-text" id="q-text"></div>
+    </div>
+    <div class="options-list" id="options-list"></div>
+    <div class="feedback-box" id="feedback-box"></div>
+    <div class="quiz-nav">
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">Question suivante →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="result-screen">
+  <div class="result-icon" id="result-icon">🏆</div>
+  <div class="result-title" id="result-title"></div>
+  <div class="result-mention" id="result-mention"></div>
+  <div class="score-circle">
+    <div class="score-num" id="score-num"></div>
+    <div class="score-denom">/ 30</div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card good"><div class="stat-val" id="stat-correct">0</div><div class="stat-label">Correctes</div></div>
+    <div class="stat-card bad"><div class="stat-val" id="stat-wrong">0</div><div class="stat-label">Incorrectes</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-time">—</div><div class="stat-label">Temps utilisé</div></div>
+  </div>
+  <div class="result-actions">
+    <button class="btn-retry" onclick="restartQuiz()">🔄 Recommencer</button>
+    <a class="btn-home" href="index.html">← Retour accueil</a>
+  </div>
+  <div class="correction-section">
+    <div class="correction-title">Correction détaillée</div>
+    <div id="correction-list"></div>
+  </div>
+</div>
+
+<script>
+const TIMER_SECONDS = 20 * 60;
+const QUESTIONS = [
+  { type:"Mémorisation", q:"Quelle est la signification de l'acronyme CQPM ?", options:["Certificat de Qualification Professionnelle de la Métallurgie","Certificat de Qualification des Personnels de Maintenance","Contrôle Qualité des Processus de Maintenance","Certification des Qualifications en Production Mécanique"], answer:0, explanation:"CQPM = Certificat de Qualification Professionnelle de la Métallurgie." },
+  { type:"Mémorisation", q:"Combien de sorties de secours minimum doit comporter un avion de plus de 100 passagers ?", options:["2 sorties","4 sorties","6 sorties","8 sorties"], answer:1, explanation:"Un avion de plus de 100 passagers doit disposer d'au moins 4 sorties de secours (2 de chaque côté)." },
+  { type:"Mémorisation", q:"Quelle couleur identifie les sorties de secours dans un aéronef ?", options:["Rouge","Jaune","Vert","Orange"], answer:2, explanation:"Les sorties de secours sont identifiées par la couleur verte, conformément aux normes de signalisation." },
+  { type:"Mémorisation", q:"À quelle altitude cabine maximale est-on autorisé en croisière ?", options:["6 000 ft","8 000 ft","10 000 ft","12 000 ft"], answer:1, explanation:"L'altitude cabine maximale autorisée en croisière est de 8 000 ft (environ 2 440 m)." },
+  { type:"Mémorisation", q:"Quel équipement de sécurité doit obligatoirement se trouver à chaque siège passager ?", options:["Un extincteur","Une trousse de secours","Un gilet de sauvetage","Un masque O₂ supplémentaire"], answer:2, explanation:"Un gilet de sauvetage doit être disponible pour chaque occupant, généralement sous ou dans chaque siège." },
+  { type:"Mémorisation", q:"Combien de temps dure l'alimentation en oxygène des masques passagers lors d'une dépressurisation ?", options:["5 minutes","12 minutes","20 minutes","30 minutes"], answer:1, explanation:"Les masques à oxygène passagers fournissent environ 12 minutes d'O₂, suffisant pour une descente d'urgence." },
+  { type:"Mémorisation", q:"Quel est le rôle principal du mécanicien cabine aéronautique ?", options:["Assurer la sécurité des passagers en vol","Maintenir en état de navigabilité les équipements cabine","Effectuer le contrôle des billets","Coordonner le chargement des bagages"], answer:1, explanation:"Le mécanicien cabine assure la maintenance et le maintien en navigabilité des équipements cabine." },
+  { type:"Mémorisation", q:"Quelle réglementation européenne encadre la maintenance aéronautique civile ?", options:["EASA Part-145","ICAO Annex 6","FAR Part 43","JAR-OPS 1"], answer:0, explanation:"La réglementation EASA Part-145 encadre les organismes de maintenance agréés en Europe." },
+  { type:"Mémorisation", q:"Qu'est-ce qu'une MEL (Minimum Equipment List) ?", options:["Liste du matériel de survie obligatoire","Liste des équipements pouvant être inopérants tout en permettant le vol","Liste des pièces de rechange minimales","Manuel d'entretien des équipements légers"], answer:1, explanation:"La MEL liste les équipements qui peuvent être hors service tout en autorisant le vol dans des conditions définies." },
+  { type:"Mémorisation", q:"Quelle est la durée max d'un ordre de travail non clôturé avant escalade ?", options:["24 heures","48 heures","72 heures","1 semaine"], answer:2, explanation:"Un OT non clôturé sous 72 heures doit faire l'objet d'une escalade vers le superviseur." },
+  { type:"Mémorisation", q:"Quel document certifie qu'une intervention de maintenance est conforme aux normes ?", options:["Le carnet de route","Le CRS (Certificate of Release to Service)","Le logbook technique","Le rapport d'inspection EASA"], answer:1, explanation:"Le CRS certifie la remise en service de l'aéronef après maintenance." },
+  { type:"Mémorisation", q:"À quelle fréquence est inspecté un extincteur de cabine ?", options:["Avant chaque vol","Tous les mois","Tous les 6 mois","Tous les ans"], answer:0, explanation:"Les extincteurs de cabine sont vérifiés avant chaque vol dans le cadre du tour de cabine pré-vol." },
+  { type:"Mémorisation", q:"Qu'est-ce qu'un PIREP en maintenance cabine ?", options:["Un rapport météo du pilote","Un signalement de défaut constaté par l'équipage en vol","Un plan d'inspection régulière","Une procédure d'urgence pilote"], answer:1, explanation:"Un PIREP est un signalement fait par l'équipage concernant un défaut constaté pendant le vol." },
+  { type:"Mémorisation", q:"Quelle est la hauteur minimale des marquages de guidage au sol dans les allées ?", options:["5 cm","10 cm","15 cm","20 cm"], answer:1, explanation:"Les marquages lumineux de guidage dans les allées doivent avoir une hauteur minimale de 10 cm." },
+  { type:"Mémorisation", q:"Quel sigle désigne l'agence européenne de sécurité aérienne ?", options:["DGAC","EASA","ICAO","IATA"], answer:1, explanation:"EASA = European Union Aviation Safety Agency." },
+  { type:"Compréhension", q:"Un passager signale que sa ceinture est bloquée. Quelle est la priorité du mécanicien cabine ?", options:["Réparer la ceinture immédiatement en vol","Remplacer le siège complet","Consigner le défaut et placer le siège hors service selon la MEL","Informer uniquement le commandant de bord"], answer:2, explanation:"Le mécanicien consigne le défaut et applique la MEL : le siège est placé hors service jusqu'à réparation." },
+  { type:"Compréhension", q:"Lors d'un tour pré-vol, un masque O₂ est sorti de son compartiment. Que faites-vous en premier ?", options:["Vous le rangez et notez le défaut","Vous déclenchez l'alerte sécurité","Vous vérifiez l'ensemble du circuit O₂ de la rangée","Vous informez le chef de cabine uniquement"], answer:2, explanation:"La priorité est de vérifier l'intégrité du circuit O₂ de toute la rangée avant de consigner." },
+  { type:"Compréhension", q:"Pourquoi respecter le couple de serrage spécifié lors du montage d'un équipement cabine ?", options:["Pour accélérer la maintenance","Pour éviter d'endommager l'outil","Pour garantir la tenue mécanique et la navigabilité","Pour l'esthétique de la cabine"], answer:2, explanation:"Un couple incorrect peut entraîner desserrage en vol — ce qui compromet la navigabilité et la sécurité." },
+  { type:"Compréhension", q:"Un technicien réalise une intervention sans l'AMM sous la main. Bonne conduite ?", options:["Il procède de mémoire","Il improvise une solution équivalente","Il suspend l'intervention jusqu'à obtenir la documentation","Il se fait dicter la procédure par un collègue"], answer:2, explanation:"Aucune intervention sans documentation technique à jour. On suspend et on se procure l'AMM." },
+  { type:"Compréhension", q:"Vous signez le CRS avec un doute sur la conformité. Conséquence principale ?", options:["Un avertissement du superviseur","Vous engagez votre responsabilité pénale et professionnelle","L'avion est mis en quarantaine automatiquement","Une inspection EASA est déclenchée"], answer:1, explanation:"Signer un CRS engage pleinement la responsabilité juridique du technicien. Tout doute doit être levé avant." },
+  { type:"Compréhension", q:"Pourquoi les équipements de sécurité ont-ils des positions fixes et identiques sur toute la flotte ?", options:["Pour des raisons esthétiques","Pour faciliter la maintenance planifiée","Pour permettre à l'équipage d'agir en automatisme en urgence","Pour réduire le poids en cabine"], answer:2, explanation:"La standardisation permet à l'équipage d'agir sans réfléchir, même sur un appareil inconnu de la flotte." },
+  { type:"Compréhension", q:"Un défaut MEL catégorie C (3 jours). L'avion peut-il voler ?", options:["Non, tout défaut interdit le vol","Oui, sous conditions définies par la MEL","Oui, sans aucune restriction","Non, sauf autorisation EASA"], answer:1, explanation:"MEL catégorie C autorise le vol pendant 3 jours calendaires sous les conditions précisées dans la MEL." },
+  { type:"Compréhension", q:"Vous trouvez un outil dans la cabine après clôture de l'intervention. Procédure ?", options:["Vous le rangez discrètement","Vous signalez un FOD et suspendez la remise en service","Vous vérifiez si l'outil vous appartient et continuez","Vous informez le chef d'équipe en fin de journée"], answer:1, explanation:"Un outil oublié est un FOD critique. Signalement immédiat et vérification avant toute remise en service." },
+  { type:"Compréhension", q:"Différence fondamentale entre inspection de transit et visite périodique ?", options:["Le transit est plus complet","La visite périodique est faite avant chaque vol","Le transit est rapide entre vols ; la visite est planifiée et approfondie","Aucune différence réglementaire"], answer:2, explanation:"Transit = vérification rapide entre vols. Visite (A-check, C-check…) = planifiée, documentée, approfondie." },
+  { type:"Compréhension", q:"Pourquoi les EPI sont obligatoires même pour des interventions courtes ?", options:["Pour l'image de marque","Parce que les risques existent même sur courte durée","Uniquement pour les interventions de plus de 30 min","Pour identifier les techniciens"], answer:1, explanation:"Les risques (chimiques, mécaniques, électriques) existent dès le début d'une intervention." },
+  { type:"Compréhension", q:"Pièce de rechange sans EASA Form 1. Peut-on clôturer l'OT ?", options:["Oui si visuellement identique","Oui si le chef d'équipe valide oralement","Non, seules les pièces certifiées EASA Form 1 peuvent être montées","Oui si même fabricant"], answer:2, explanation:"Seules les pièces avec EASA Form 1 peuvent être montées sur un aéronef certifié." },
+  { type:"Compréhension", q:"Pourquoi les masques O₂ tombent-ils automatiquement en cas de dépressurisation ?", options:["Grâce à un capteur de pression automatique","Le commandant appuie sur un bouton","Par gravité uniquement","Les passagers ouvrent manuellement"], answer:0, explanation:"Un capteur déclenche l'ouverture automatique des compartiments O₂ lorsque l'altitude cabine dépasse 14 000 ft." },
+  { type:"Compréhension", q:"Objectif principal du CRM appliqué à la maintenance ?", options:["Réduire le nombre de techniciens","Optimiser la communication et réduire les erreurs humaines","Accélérer les cadences","Contrôler les coûts"], answer:1, explanation:"Le CRM en maintenance vise à améliorer la communication et réduire les erreurs humaines en équipe." },
+  { type:"Compréhension", q:"Un technicien fait deux fois la même tâche car un collègue l'avait déjà effectuée. Quel facteur humain ?", options:["Manque de compétence technique","Défaut de communication et de coordination","Fatigue physique","Mauvais équipement"], answer:1, explanation:"C'est un défaut de communication — exactement ce que le CRM cherche à prévenir." },
+  { type:"Compréhension", q:"Pourquoi est-il interdit de modifier une procédure même si le technicien a une méthode plus efficace ?", options:["Par respect de la hiérarchie","Les procédures sont certifiées et toute modif non approuvée invalide la navigabilité","Pour éviter les conflits","Les procédures ne peuvent pas être améliorées"], answer:1, explanation:"Les procédures sont certifiées. Toute modification non approuvée sort du cadre réglementaire." }
+];
+
+let currentQ=0, score=0, answered=false, timerInterval=null, secondsLeft=TIMER_SECONDS, startTime=null, userAnswers=[];
+let shuffledQuestions=[];
+
+function shuffle(arr) {
+  const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a;
+}
+
+function prepareQuestions() {
+  // Mélange les questions ET les réponses de chaque question
+  shuffledQuestions = shuffle(QUESTIONS).map(q => {
+    const indices = shuffle([0,1,2,3]);
+    const newOptions = indices.map(i => q.options[i]);
+    const newAnswer = indices.indexOf(q.answer);
+    return {...q, options: newOptions, answer: newAnswer};
+  });
+}
+
+function startQuiz() {
+  currentQ=0; score=0; answered=false; userAnswers=[];
+  secondsLeft=TIMER_SECONDS; startTime=Date.now();
+  prepareQuestions();
+  document.getElementById('intro-screen').style.display='none';
+  document.getElementById('quiz-screen').style.display='block';
+  document.getElementById('timer').style.visibility='visible';
+  renderQuestion(); startTimer();
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{ secondsLeft--; updateTimer(); if(secondsLeft<=0){clearInterval(timerInterval);showResults();} },1000);
+}
+
+function updateTimer() {
+  const m=Math.floor(secondsLeft/60).toString().padStart(2,'0');
+  const s=(secondsLeft%60).toString().padStart(2,'0');
+  const el=document.getElementById('timer');
+  el.textContent=`${m}:${s}`;
+  el.className=secondsLeft<=120?'timer-box warning':'timer-box';
+}
+
+function renderQuestion() {
+  answered=false;
+  const q=shuffledQuestions[currentQ];
+  document.getElementById('q-type-label').textContent=q.type;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('q-counter').textContent=`Question ${currentQ+1} / ${QUESTIONS.length}`;
+  document.getElementById('q-score-live').textContent=`Score : ${score}`;
+  document.getElementById('progress-fill').style.width=`${(currentQ/QUESTIONS.length)*100}%`;
+  const fb=document.getElementById('feedback-box'); fb.className='feedback-box'; fb.textContent='';
+  const nb=document.getElementById('next-btn'); nb.className='next-btn';
+  nb.textContent=currentQ===QUESTIONS.length-1?'Voir les résultats →':'Question suivante →';
+  const list=document.getElementById('options-list'); list.innerHTML='';
+  ['A','B','C','D'].forEach((l,i)=>{
+    const btn=document.createElement('button');
+    btn.className='option-btn';
+    btn.innerHTML=`<span class="option-letter">${l}</span><span>${q.options[i]}</span>`;
+    btn.onclick=()=>selectAnswer(i,btn); list.appendChild(btn);
+  });
+}
+
+function selectAnswer(index,btn) {
+  if(answered) return; answered=true;
+  const q=shuffledQuestions[currentQ];
+  const all=document.querySelectorAll('.option-btn');
+  all.forEach(b=>b.disabled=true);
+  const ok=index===q.answer;
+  if(ok){btn.classList.add('correct');score++;}
+  else{btn.classList.add('wrong');all[q.answer].classList.add('correct');}
+  userAnswers[currentQ]={chosen:index,correct:q.answer,isCorrect:ok,q:q.q,options:q.options};
+  const fb=document.getElementById('feedback-box');
+  fb.textContent=ok?`✓ Correct — ${q.explanation}`:`✗ Incorrect — ${q.explanation}`;
+  fb.className=`feedback-box show ${ok?'correct-fb':'wrong-fb'}`;
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function nextQuestion() {
+  currentQ++;
+  if(currentQ>=QUESTIONS.length){clearInterval(timerInterval);showResults();}
+  else renderQuestion();
+}
+
+function showResults() {
+  clearInterval(timerInterval);
+  document.getElementById('quiz-screen').style.display='none';
+  document.getElementById('result-screen').style.display='block';
+  document.getElementById('timer').style.visibility='hidden';
+  window.scrollTo(0,0);
+  const pct=(score/QUESTIONS.length)*100;
+  const el=Math.round((Date.now()-startTime)/1000);
+  document.getElementById('score-num').textContent=score;
+  document.getElementById('stat-correct').textContent=score;
+  document.getElementById('stat-wrong').textContent=QUESTIONS.length-score;
+  document.getElementById('stat-time').textContent=`${Math.floor(el/60).toString().padStart(2,'0')}:${(el%60).toString().padStart(2,'0')}`;
+  let icon,title,mc,mt;
+  if(pct<50){icon='😓';title='À retravailler';mc='mention-insuf';mt='Insuffisant';}
+  else if(pct<65){icon='📚';title='Continue tes efforts !';mc='mention-passable';mt='Passable';}
+  else if(pct<80){icon='👍';title='Bon travail !';mc='mention-bien';mt='Bien';}
+  else{icon='🏆';title='Excellent !';mc='mention-tres-bien';mt='Très bien';}
+  document.getElementById('result-icon').textContent=icon;
+  document.getElementById('result-title').textContent=title;
+  const m=document.getElementById('result-mention'); m.textContent=mt; m.className=`result-mention ${mc}`;
+  const cl=document.getElementById('correction-list'); cl.innerHTML='';
+  userAnswers.forEach((ua,i)=>{
+    if(!ua)return;
+    const d=document.createElement('div');
+    d.className=`correction-item ${ua.isCorrect?'ok':'ko'}`;
+    d.innerHTML=`<div class="correction-q">${i+1}. ${ua.q}</div><div class="correction-detail">${ua.isCorrect?`<span class="ok-ans">✓ ${ua.options[ua.correct]}</span>`:`Votre réponse : <span class="ko-ans">${ua.options[ua.chosen]}</span> — Bonne réponse : <span class="ok-ans">${ua.options[ua.correct]}</span>`}</div>`;
+    cl.appendChild(d);
+  });
+}
+
+function restartQuiz() {
+  document.getElementById('result-screen').style.display='none';
+  document.getElementById('intro-screen').style.display='block';
+}
+</script>
+</body>
+</html>
