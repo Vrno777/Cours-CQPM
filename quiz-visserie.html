@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz — Visserie Aéronautique · CQPM-289</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-deep:#0f0f0d;--bg-card:#1a1a18;--bg-section:#222220;--orange:#D85A30;--orange-dim:#a84420;--orange-glow:rgba(216,90,48,0.12);--text:#e8e6e0;--text-muted:#8a8880;--border:#2e2e2a;--green:#4caf7a;--green-bg:rgba(76,175,122,.1);--red:#e85a4a;--red-bg:rgba(232,90,74,.1);--blue:#4a9fd8;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg-deep);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.65;min-height:100vh;}
+  header{background:var(--bg-card);border-bottom:2px solid var(--orange);padding:20px 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;}
+  .back-btn{display:inline-flex;align-items:center;gap:6px;background:var(--orange);color:#fff;text-decoration:none;padding:7px 14px;border-radius:6px;font-size:13px;font-weight:600;white-space:nowrap;transition:background .2s;}
+  .back-btn:hover{background:var(--orange-dim);}
+  .header-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--orange);letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px;}
+  header h1{font-size:1.2rem;font-weight:700;}
+  .container{max-width:760px;margin:0 auto;padding:36px 20px 80px;}
+  .screen{display:none;}
+  .screen.active{display:block;}
+  .intro-card{background:var(--bg-card);border:1px solid var(--border);border-left:4px solid var(--orange);border-radius:10px;padding:28px 32px;text-align:center;}
+  .intro-card h2{font-size:1.5rem;margin-bottom:12px;}
+  .intro-card p{color:var(--text-muted);font-size:14px;max-width:480px;margin:0 auto 8px;}
+  .intro-stats{display:flex;justify-content:center;gap:24px;margin:24px 0;flex-wrap:wrap;}
+  .stat{background:var(--bg-section);border:1px solid var(--border);border-radius:8px;padding:12px 20px;text-align:center;}
+  .stat-val{font-size:1.6rem;font-weight:700;color:var(--orange);font-family:'DM Mono',monospace;}
+  .stat-lbl{font-size:12px;color:var(--text-muted);}
+  .btn-start{display:inline-block;background:var(--orange);color:#fff;border:none;padding:14px 36px;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;margin-top:20px;font-family:'DM Sans',sans-serif;transition:background .2s;}
+  .btn-start:hover{background:var(--orange-dim);}
+  .progress-wrap{margin-bottom:24px;}
+  .progress-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .progress-label{font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted);}
+  .timer{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--orange);}
+  .timer.urgent{color:var(--red);animation:pulse .8s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+  .progress-bar{background:var(--border);border-radius:4px;height:6px;overflow:hidden;}
+  .progress-fill{background:var(--orange);height:100%;border-radius:4px;transition:width .4s ease;}
+  .progress-type{font-size:11px;color:var(--text-muted);margin-top:6px;font-family:'DM Mono',monospace;letter-spacing:.08em;}
+  .q-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:28px 28px 24px;margin-bottom:20px;}
+  .q-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--orange);margin-bottom:12px;display:block;letter-spacing:.08em;}
+  .q-text{font-size:16px;font-weight:600;line-height:1.5;margin-bottom:24px;}
+  .options{display:flex;flex-direction:column;gap:10px;}
+  .opt{background:var(--bg-section);border:2px solid var(--border);border-radius:8px;padding:14px 18px;cursor:pointer;font-size:14px;color:var(--text-muted);transition:border-color .15s,background .15s;display:flex;align-items:flex-start;gap:12px;text-align:left;}
+  .opt:hover:not(.disabled){border-color:#4a4a44;background:#2a2a28;color:var(--text);}
+  .opt-letter{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--orange);background:var(--orange-glow);border:1px solid var(--orange);border-radius:4px;padding:2px 7px;white-space:nowrap;min-width:28px;text-align:center;margin-top:1px;}
+  .opt.correct{border-color:var(--green);background:var(--green-bg);color:var(--text);}
+  .opt.correct .opt-letter{color:var(--green);border-color:var(--green);background:rgba(76,175,122,.15);}
+  .opt.wrong{border-color:var(--red);background:var(--red-bg);color:var(--text);}
+  .opt.wrong .opt-letter{color:var(--red);border-color:var(--red);background:rgba(232,90,74,.15);}
+  .opt.disabled{cursor:default;pointer-events:none;}
+  .feedback{border-radius:8px;padding:14px 16px;margin-top:16px;font-size:13.5px;display:none;}
+  .feedback.show{display:block;}
+  .feedback.ok{background:var(--green-bg);border:1px solid rgba(76,175,122,.35);color:#7acf9a;}
+  .feedback.ko{background:var(--red-bg);border:1px solid rgba(232,90,74,.35);color:#e8a09a;}
+  .feedback strong{color:var(--text);}
+  .btn-next{display:none;width:100%;background:var(--orange);color:#fff;border:none;padding:14px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s;}
+  .btn-next:hover{background:var(--orange-dim);}
+  .btn-next.show{display:block;}
+  .result-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:32px;text-align:center;margin-bottom:24px;}
+  .score-big{font-size:4rem;font-weight:700;color:var(--orange);font-family:'DM Mono',monospace;line-height:1;}
+  .score-label{font-size:13px;color:var(--text-muted);margin-top:6px;}
+  .mention{display:inline-block;margin:16px 0;padding:8px 22px;border-radius:20px;font-weight:700;font-size:15px;}
+  .mention.insuffisant{background:rgba(232,90,74,.15);color:var(--red);border:1px solid rgba(232,90,74,.3);}
+  .mention.passable{background:rgba(232,200,74,.1);color:#e8c84a;border:1px solid rgba(232,200,74,.3);}
+  .mention.bien{background:rgba(74,159,216,.1);color:var(--blue);border:1px solid rgba(74,159,216,.3);}
+  .mention.tres-bien{background:var(--green-bg);color:var(--green);border:1px solid rgba(76,175,122,.3);}
+  .result-stats{display:flex;justify-content:center;gap:20px;margin:20px 0;flex-wrap:wrap;}
+  .r-stat{background:var(--bg-section);border:1px solid var(--border);border-radius:8px;padding:12px 18px;text-align:center;}
+  .r-stat-val{font-size:1.4rem;font-weight:700;font-family:'DM Mono',monospace;}
+  .r-stat-val.g{color:var(--green);}
+  .r-stat-val.r{color:var(--red);}
+  .r-stat-lbl{font-size:11px;color:var(--text-muted);}
+  .btn-restart{display:inline-block;background:var(--orange);color:#fff;border:none;padding:13px 32px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px;transition:background .2s;}
+  .btn-restart:hover{background:var(--orange-dim);}
+  .correction-title{font-size:1rem;font-weight:700;color:var(--orange);margin:32px 0 16px;font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;}
+  .corr-item{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:16px 18px;margin-bottom:10px;}
+  .corr-q{font-size:13.5px;font-weight:600;margin-bottom:8px;}
+  .corr-q-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);margin-right:8px;}
+  .corr-ans{font-size:13px;padding:6px 10px;border-radius:6px;margin-top:4px;}
+  .corr-ans.user-ok{background:var(--green-bg);border:1px solid rgba(76,175,122,.3);color:#7acf9a;}
+  .corr-ans.user-ko{background:var(--red-bg);border:1px solid rgba(232,90,74,.3);color:#e8a09a;}
+  .corr-ans.correct-ans{background:var(--orange-glow);border:1px solid rgba(216,90,48,.3);color:#d8a080;margin-top:4px;}
+  .corr-exp{font-size:12.5px;color:var(--text-muted);margin-top:6px;padding-left:4px;}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back-btn" href="index.html" onclick="sessionStorage.setItem('cqpm_auth','ok')">← Accueil</a>
+  <div>
+    <div class="header-tag">Quiz · CQPM-289</div>
+    <h1>🔩 Visserie Aéronautique</h1>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="screen active" id="screen-intro">
+    <div class="intro-card">
+      <h2>Quiz — Visserie Aéronautique</h2>
+      <p>Testez vos connaissances sur les systèmes de visserie, la lecture des références, le relevé du pas et les règles d'assemblage.</p>
+      <div class="intro-stats">
+        <div class="stat"><div class="stat-val">30</div><div class="stat-lbl">Questions</div></div>
+        <div class="stat"><div class="stat-val">15</div><div class="stat-lbl">Mémorisation</div></div>
+        <div class="stat"><div class="stat-val">15</div><div class="stat-lbl">Compréhension</div></div>
+        <div class="stat"><div class="stat-val">20'</div><div class="stat-lbl">Durée</div></div>
+      </div>
+      <p>Questions et réponses mélangées aléatoirement à chaque partie.</p>
+      <button class="btn-start" onclick="startQuiz()">▶ Commencer</button>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-quiz">
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <span class="progress-label" id="prog-label">Question 1/30</span>
+        <span class="timer" id="timer">20:00</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="progress-type" id="prog-type"></div>
+    </div>
+    <div class="q-card">
+      <span class="q-num" id="q-num"></span>
+      <div class="q-text" id="q-text"></div>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Question suivante →</button>
+  </div>
+
+  <div class="screen" id="screen-results">
+    <div class="result-card">
+      <div class="score-big" id="score-big"></div>
+      <div class="score-label">/ 30 questions correctes</div>
+      <div class="mention" id="mention"></div>
+      <div class="result-stats">
+        <div class="r-stat"><div class="r-stat-val g" id="r-correct"></div><div class="r-stat-lbl">Correctes</div></div>
+        <div class="r-stat"><div class="r-stat-val r" id="r-wrong"></div><div class="r-stat-lbl">Erreurs</div></div>
+        <div class="r-stat"><div class="r-stat-val" id="r-pct" style="color:var(--orange)"></div><div class="r-stat-lbl">Score</div></div>
+      </div>
+      <button class="btn-restart" onclick="restartQuiz()">↺ Recommencer</button>
+    </div>
+    <div class="correction-title">Correction détaillée</div>
+    <div id="correction-list"></div>
+  </div>
+
+</div>
+
+<script>
+const ALL_QUESTIONS = [
+  // ══ MÉMORISATION (15) ══
+  {type:'mem',q:"Combien de caractéristiques principales permettent d'identifier une vis ?",opts:["7","4","5","9"],ans:0,exp:"Une vis est identifiée par 7 caractéristiques : matière, diamètre, pas, longueur totale, longueur filetée/lisse, forme de la tête, référence du système."},
+  {type:'mem',q:"Pour quelle type de vis la longueur est-elle mesurée tête comprise ?",opts:["Vis à tête fraisée","Vis hexagonale","Vis cylindrique","Vis BTR"],ans:0,exp:"La longueur d'une vis est toujours prise sous la tête, SAUF pour la vis à tête fraisée dont la tête est comprise dans la longueur totale."},
+  {type:'mem',q:"Que signifie le chiffre '80' dans la désignation ISO 'M8 × 80' ?",opts:["Le pas du filetage en centièmes de mm (= 0,8 mm)","La longueur de la vis en mm","Le nombre de filets par pouce","Le diamètre de la tête en mm"],ans:0,exp:"80 = pas du filetage exprimé en centièmes de mm. Un pas de 80 = 80/100 mm = 0,8 mm entre deux sommets de filetage."},
+  {type:'mem',q:"Que signifie 'M8' dans la désignation ISO 'M8 × 80' ?",opts:["Diamètre nominal de 8 mm","Longueur de 8 mm","8 filets par pouce","Matière n°8"],ans:0,exp:"M8 = diamètre nominal de la vis exprimé en millimètres, soit 8 mm."},
+  {type:'mem',q:"Dans la désignation Sellers '¼ – 28', que représente le '28' ?",opts:["Nombre de filets sur 1 pouce","Longueur de la vis","Diamètre en mm","Pas en centièmes de mm"],ans:0,exp:"Dans le système Sellers (américain), le second chiffre représente le nombre de filets sur une distance de 1 pouce."},
+  {type:'mem',q:"Quel est l'angle à flanc de filet du système Whitworth ?",opts:["55°","60°","45°","30°"],ans:0,exp:"Le système Whitworth se distingue par son profil arrondi avec un angle à flanc de filet de 55° (contre 60° pour l'ISO et le Sellers)."},
+  {type:'mem',q:"Que signifie NAS dans les normes de visserie aéronautique US ?",opts:["National Aircraft Standard","Navy Aerospace Standard","New Aeronautic System","Normal Assembly Standard"],ans:0,exp:"NAS = National Aircraft Standard. C'est l'une des normes US les plus utilisées en visserie aéronautique."},
+  {type:'mem',q:"Que signifie l'abréviation BAC dans la visserie aéronautique ?",opts:["Boeing Aircraft Company Standards","British Aeronautic Convention","Basic Assembly Characteristics","Bureau of Aeronautic Certification"],ans:0,exp:"BAC = Boeing Aircraft Company Standards (aussi appelé Boeing Company Standards)."},
+  {type:'mem',q:"Quel est le nom de l'inventeur du système de visserie Whitworth ?",opts:["Sir Joseph Whitworth","James Sellers","William ISO","Henry Boeing"],ans:0,exp:"Le système Whitworth porte le nom de son inventeur : Sir Joseph Whitworth, ingénieur britannique."},
+  {type:'mem',q:"Que signifie NSA dans la visserie européenne utilisant le standard US ?",opts:["Norme Sud Aviation","National Standard Aviation","Navy System Aéronautique","Nouvelle Spécification Aérospatiale"],ans:0,exp:"NSA = Norme Sud Aviation. C'est une norme européenne utilisant le standard américain, aux côtés de l'ANSA (Aérospatiale Norme Sud Aviation)."},
+  {type:'mem',q:"Combien de rondelles maximum peut-on empiler sous la tête d'un boulon ?",opts:["2 maximum","1 maximum","3 maximum","Pas de limite"],ans:0,exp:"Règle des rondelles : 3 max au total, 2 max sous la tête, 1 max sous l'écrou. Éviter l'empilage excessif."},
+  {type:'mem',q:"Combien de filets au maximum doivent dépasser de l'écrou dans un assemblage boulon ?",opts:["1 à 4 filets","5 à 6 filets","Aucun","7 à 10 filets"],ans:0,exp:"1 à 4 filets maximum doivent dépasser de l'écrou. La partie lisse doit être en retrait de 1 à 2 filets."},
+  {type:'mem',q:"Quelles sont les 3 désignations de pas du système Whitworth ?",opts:["BSW, BSF, BA","NAS, AN, MS","ISO, NFE, DIN","UNC, UNF, UNS"],ans:0,exp:"BSW (British Standard Whitworth), BSF (British Standard Fine), BA (British Association)."},
+  {type:'mem',q:"Que signifie AN dans les normes de visserie aéronautique US ?",opts:["Air Force and the Navy","Aircraft Normalization","Airbus Nomenclature","Aviation Norms"],ans:0,exp:"AN = Air Force and the Navy. Norme commune à l'armée de l'air et à la marine américaines."},
+  {type:'mem',q:"Quel document constructeur faut-il toujours consulter pour choisir la visserie correcte ?",opts:["L'IPC (Illustrated Parts Catalog)","Le Log Book","Le TSM","La MEL"],ans:0,exp:"Il faut toujours respecter la référence indiquée par le constructeur dans l'IPC (Catalogue Illustré des Pièces)."},
+
+  // ══ COMPRÉHENSION (15) ══
+  {type:'comp',q:"Un mécanicien doit remplacer une vis marquée 'M10 × 125'. Quel est le pas réel de cette vis ?",opts:["1,25 mm","125 mm","0,125 mm","12,5 mm"],ans:0,exp:"Le pas est exprimé en centièmes de mm : 125 centièmes = 125/100 = 1,25 mm entre deux sommets de filetage."},
+  {type:'comp',q:"Vous trouvez une vis marquée '3/8 – 24'. Dans quel système est-elle ?",opts:["Système Sellers (américain)","Système ISO (français)","Système Whitworth (anglais)","Système NAS"],ans:0,exp:"La notation fraction-de-pouce / nombre-de-filets (3/8 – 24) est caractéristique du système Sellers américain."},
+  {type:'comp',q:"Pourquoi ne faut-il jamais mélanger une vis ISO avec un écrou Whitworth de diamètre similaire ?",opts:["Les angles de filet sont différents (60° vs 55°), risque d'arrachement","La couleur des métaux est différente","Les rondelles ne sont pas compatibles","Le sens de vissage est inversé"],ans:0,exp:"ISO = 60°, Whitworth = 55°. Mélanger les systèmes crée un contact insuffisant sur les flancs du filetage, risquant l'arrachement sous charge."},
+  {type:'comp',q:"Un technicien monte un boulon. La vis choisie laisse dépasser 6 filets de l'écrou. Que doit-il faire ?",opts:["Choisir une vis plus courte — max 4 filets doivent dépasser","Ajouter des rondelles pour compenser","C'est correct, aucun changement nécessaire","Utiliser un écrou plus épais"],ans:0,exp:"La règle est de 1 à 4 filets maximum dépassant de l'écrou. 6 filets = vis trop longue, il faut choisir une longueur inférieure."},
+  {type:'comp',q:"Pour un assemblage entre deux pièces en aluminium, quelle visserie choisit-on ?",opts:["Visserie en aluminium ou matière compatible — même nature de métal","Toujours de l'acier inox pour la résistance","Peu importe la matière si le diamètre est correct","Toujours du titane"],ans:0,exp:"Il faut assortir vis, écrou et rondelles de même nature de métal pour éviter la corrosion galvanique entre métaux différents."},
+  {type:'comp',q:"Un mécanicien utilise un peigne à filets et constate que le peigne ISO ne s'emboîte pas parfaitement. Que conclut-il ?",opts:["La vis n'est pas en système ISO — probablement Whitworth ou Sellers","Le peigne est défectueux","La vis est trop usée pour être identifiée","La vis est en titane"],ans:0,exp:"Si le peigne ISO ne s'emboîte pas parfaitement, la vis appartient à un autre système (Whitworth à 55° ou Sellers). Il faut essayer d'autres peignes."},
+  {type:'comp',q:"Lors du montage d'un boulon, où doit se situer la partie lisse de la vis ?",opts:["En retrait de 1 à 2 filets dans l'assemblage","Entièrement en dehors de l'assemblage","À la moitié de l'épaisseur des pièces","Aucune règle précise"],ans:0,exp:"La partie lisse doit être en retrait de 1 à 2 filets — elle doit traverser l'assemblage sans que le filetage soit sollicité latéralement."},
+  {type:'comp',q:"Un assemblage nécessite 4 rondelles sous la tête. Que fait le mécanicien ?",opts:["Il n'en met que 2 maximum et cherche une vis de longueur adaptée","Il les empile toutes les 4","Il en met 3 et élimine la dernière","Il contacte le bureau technique"],ans:0,exp:"Maximum 2 rondelles sous la tête. Il faut choisir une vis de longueur appropriée plutôt que d'empiler des rondelles."},
+  {type:'comp',q:"Une vis de remplacement a la même désignation que l'originale mais provient d'un stock non certifié. Que faire ?",opts:["Ne pas l'utiliser — toujours respecter la référence IPC du constructeur","L'utiliser car la désignation est identique","La vérifier au peigne et l'utiliser si le pas est correct","La monter en ajoutant un frein filet supplémentaire"],ans:0,exp:"En aéronautique, on utilise UNIQUEMENT les pièces référencées dans l'IPC du constructeur. Une visserie non certifiée est interdite même si les dimensions semblent identiques."},
+  {type:'comp',q:"Quelle est la particularité du profil Whitworth qui lui confère une bonne étanchéité ?",opts:["Son profil arrondi aux sommets et creux du filetage","Son angle de 60°","Sa fabrication en acier inox","Son nombre de filets élevé par pouce"],ans:0,exp:"Le profil rond du Whitworth (sommets et creux arrondis) assure une meilleure étanchéité que les profils en V, car il comble mieux les espaces entre vis et écrou."},
+  {type:'comp',q:"Un boulon est composé de quels éléments ?",opts:["Une vis + un écrou de même système et même diamètre","Une vis + une rondelle uniquement","Deux vis opposées","Un goujon + un écrou"],ans:0,exp:"Un boulon = une vis + un écrou de même système (ISO, Sellers ou Whitworth) et de même diamètre."},
+  {type:'comp',q:"Quelle est la différence principale entre un boulon et un goujon ?",opts:["Le goujon est une tige sans tête filetée aux deux extrémités, le boulon a une tête","Le goujon est plus long que le boulon","Le boulon est en acier, le goujon en aluminium","Le goujon se monte sans écrou"],ans:0,exp:"Un goujon est une tige filetée aux deux extrémités SANS tête, fixée en permanence dans une pièce. Le boulon (vis + tête + écrou) est entièrement déposable."},
+  {type:'comp',q:"Pourquoi utilise-t-on des rondelles lors d'un assemblage ?",opts:["Pour éviter de marquer les pièces et répartir les efforts de serrage","Pour augmenter la longueur de la vis","Pour compenser un mauvais filetage","Pour alourdir l'assemblage"],ans:0,exp:"Les rondelles servent à protéger les surfaces des pièces assembléees contre les marques de serrage et à mieux répartir les efforts."},
+  {type:'comp',q:"Un mécanicien travaille sur un Airbus A320 et doit identifier une vis inconnue. Quelle est sa première démarche ?",opts:["Consulter l'IPC de l'A320 pour trouver la référence exacte","Mesurer la vis au pied à coulisse et commander la même","Utiliser n'importe quelle vis de même diamètre apparent","Appeler le fournisseur de visserie"],ans:0,exp:"L'IPC (Illustrated Parts Catalog) de l'avion est la référence absolue. Il donne la désignation exacte, la norme applicable et l'effectivité pour chaque avion."},
+  {type:'comp',q:"Lors d'un assemblage, vous constatez que la vis choisie est trop courte — la partie lisse ressort de l'écrou. Quel est le risque ?",opts:["Le filetage travaille en cisaillement à l'interface des pièces, risque de rupture","Aucun risque si le serrage est correct","Il suffit d'ajouter des rondelles","La vis se dévissera seule"],ans:0,exp:"La partie lisse doit traverser l'interface des pièces. Si le filetage se retrouve à l'interface, les efforts de cisaillement s'appliquent sur le filetage (zone plus faible) et risquent la rupture."}
+];
+
+let questions=[],current=0,score=0,userAnswers=[],timerInterval=null,secondsLeft=1200;
+
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function startQuiz(){
+  const mem=shuffle(ALL_QUESTIONS.filter(q=>q.type==='mem'));
+  const comp=shuffle(ALL_QUESTIONS.filter(q=>q.type==='comp'));
+  questions=[...mem,...comp].map(q=>{
+    const opts=q.opts.map((o,i)=>({text:o,orig:i}));
+    const shuffled=shuffle(opts);
+    return{...q,opts:shuffled.map(o=>o.text),ans:shuffled.findIndex(o=>o.orig===q.ans)};
+  });
+  current=0;score=0;userAnswers=[];secondsLeft=1200;
+  showScreen('screen-quiz');
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{secondsLeft--;updateTimer();if(secondsLeft<=0){clearInterval(timerInterval);endQuiz();}},1000);
+  renderQuestion();
+}
+
+function updateTimer(){
+  const m=Math.floor(secondsLeft/60).toString().padStart(2,'0');
+  const s=(secondsLeft%60).toString().padStart(2,'0');
+  const el=document.getElementById('timer');
+  el.textContent=`${m}:${s}`;
+  el.classList.toggle('urgent',secondsLeft<=60);
+}
+
+function renderQuestion(){
+  const q=questions[current];
+  document.getElementById('prog-label').textContent=`Question ${current+1}/30`;
+  document.getElementById('prog-fill').style.width=`${(current/30)*100}%`;
+  document.getElementById('prog-type').textContent=q.type==='mem'?'📌 MÉMORISATION':'🧠 COMPRÉHENSION / SCÉNARIO';
+  document.getElementById('q-num').textContent=`Q${current+1} · ${q.type==='mem'?'Mémorisation':'Compréhension'}`;
+  document.getElementById('q-text').textContent=q.q;
+  const letters=['A','B','C','D'];
+  const optDiv=document.getElementById('options');
+  optDiv.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const d=document.createElement('div');
+    d.className='opt';
+    d.innerHTML=`<span class="opt-letter">${letters[i]}</span><span>${o}</span>`;
+    d.onclick=()=>selectAnswer(i,d);
+    optDiv.appendChild(d);
+  });
+  const fb=document.getElementById('feedback');
+  fb.className='feedback';fb.innerHTML='';
+  document.getElementById('btn-next').className='btn-next';
+  document.getElementById('btn-next').textContent=current<29?'Question suivante →':'Voir les résultats →';
+}
+
+function selectAnswer(idx,el){
+  const q=questions[current];
+  document.querySelectorAll('.opt').forEach(o=>o.classList.add('disabled'));
+  const correct=idx===q.ans;
+  if(correct)score++;
+  userAnswers.push({q,chosen:idx,correct});
+  el.classList.add(correct?'correct':'wrong');
+  if(!correct)document.querySelectorAll('.opt')[q.ans].classList.add('correct');
+  const fb=document.getElementById('feedback');
+  fb.className=`feedback ${correct?'ok':'ko'} show`;
+  fb.innerHTML=correct?`✔ <strong>Bonne réponse !</strong> ${q.exp}`:`✘ <strong>Mauvaise réponse.</strong> ${q.exp}`;
+  document.getElementById('btn-next').classList.add('show');
+}
+
+function nextQuestion(){current++;if(current>=30){endQuiz();return;}renderQuestion();}
+
+function endQuiz(){
+  clearInterval(timerInterval);
+  showScreen('screen-results');
+  const pct=Math.round((score/30)*100);
+  document.getElementById('score-big').textContent=score;
+  document.getElementById('r-correct').textContent=score;
+  document.getElementById('r-wrong').textContent=30-score;
+  document.getElementById('r-pct').textContent=pct+'%';
+  let mention,cls;
+  if(pct<50){mention='Insuffisant';cls='insuffisant';}
+  else if(pct<65){mention='Passable';cls='passable';}
+  else if(pct<80){mention='Bien';cls='bien';}
+  else{mention='Très bien';cls='tres-bien';}
+  const mEl=document.getElementById('mention');
+  mEl.textContent=mention;mEl.className=`mention ${cls}`;
+  const corrList=document.getElementById('correction-list');
+  corrList.innerHTML='';
+  const letters=['A','B','C','D'];
+  userAnswers.forEach((ua,i)=>{
+    const d=document.createElement('div');
+    d.className='corr-item';
+    let html=`<div class="corr-q"><span class="corr-q-num">Q${i+1}</span>${ua.q.q}</div>`;
+    html+=`<div class="corr-ans ${ua.correct?'user-ok':'user-ko'}">${ua.correct?'✔':'✘'} Votre réponse : ${letters[ua.chosen]}. ${ua.q.opts[ua.chosen]}</div>`;
+    if(!ua.correct)html+=`<div class="corr-ans correct-ans">✔ Bonne réponse : ${letters[ua.q.ans]}. ${ua.q.opts[ua.q.ans]}</div>`;
+    html+=`<div class="corr-exp">${ua.q.exp}</div>`;
+    d.innerHTML=html;
+    corrList.appendChild(d);
+  });
+}
+
+function restartQuiz(){showScreen('screen-intro');}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+</script>
+</body>
+</html>
