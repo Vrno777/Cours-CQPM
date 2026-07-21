@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Révision ATA 38 — Eau & Déchets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1a1a18;
+    --bg-soft:#232320;
+    --bg-card:#26261f;
+    --border:#3a3a33;
+    --orange:#D85A30;
+    --orange-soft:rgba(216,90,48,.14);
+    --text:#f2efe9;
+    --text-dim:#a8a49a;
+    --green:#5fae72;
+    --red:#c9564a;
+    --blue:#8fb3e6;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'DM Sans',sans-serif;
+    line-height:1.55;
+  }
+  a{color:var(--orange);}
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(26,26,24,.97);
+    border-bottom:1px solid var(--border);
+    padding:14px 20px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    flex-wrap:wrap;
+  }
+  .topbar .back{
+    color:var(--text-dim); text-decoration:none; font-size:14px; font-weight:600;
+    display:flex; align-items:center; gap:6px;
+  }
+  .topbar .back:hover{color:var(--orange);}
+  .brand{font-weight:800; font-size:15px; letter-spacing:.02em;}
+  .brand span{color:var(--orange);}
+  header.hero{
+    padding:40px 20px 24px;
+    max-width:920px; margin:0 auto;
+  }
+  .eyebrow{
+    color:var(--orange); font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.12em;
+    margin-bottom:10px;
+  }
+  h1{font-size:clamp(26px,4vw,38px); margin:0 0 10px; font-weight:800; line-height:1.15;}
+  .lead{color:var(--text-dim); font-size:15.5px; max-width:680px;}
+  .meta-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:18px;}
+  .pill{
+    background:var(--bg-card); border:1px solid var(--border); color:var(--text-dim);
+    padding:6px 12px; border-radius:20px; font-size:12.5px; font-weight:600;
+  }
+  .tabs{
+    max-width:920px; margin:0 auto; padding:0 20px;
+    display:flex; gap:8px; border-bottom:1px solid var(--border);
+  }
+  .tab-btn{
+    background:none; border:none; color:var(--text-dim); font-family:inherit;
+    font-size:15px; font-weight:700; padding:14px 6px; cursor:pointer;
+    border-bottom:3px solid transparent; margin-bottom:-1px;
+  }
+  .tab-btn.active{color:var(--orange); border-bottom-color:var(--orange);}
+  main{max-width:920px; margin:0 auto; padding:28px 20px 80px;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* --- COURS --- */
+  .section{
+    background:var(--bg-card); border:1px solid var(--border); border-radius:14px;
+    margin-bottom:18px; overflow:hidden;
+  }
+  .section-head{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:16px 18px; cursor:pointer; user-select:none;
+  }
+  .section-head h2{margin:0; font-size:17px; font-weight:700;}
+  .section-head .num{color:var(--orange); font-weight:800; margin-right:8px;}
+  .chevron{transition:transform .2s ease; color:var(--text-dim); flex-shrink:0;}
+  .section.open .chevron{transform:rotate(180deg);}
+  .section-body{
+    display:grid; grid-template-rows:0fr;
+    transition:grid-template-rows .25s ease;
+  }
+  .section-body > .inner{overflow:hidden; min-height:0; padding:0 18px;}
+  .section.open .section-body{grid-template-rows:1fr;}
+  .section.open .section-body > .inner{padding:0 18px 18px;}
+  .section-body h3{
+    color:var(--orange); font-size:14px; text-transform:uppercase; letter-spacing:.05em;
+    margin:18px 0 8px;
+  }
+  .section-body h3:first-child{margin-top:4px;}
+  .section-body ul{margin:0 0 4px; padding-left:20px;}
+  .section-body li{margin-bottom:6px; font-size:14.5px;}
+  .callout{
+    background:var(--orange-soft); border-left:3px solid var(--orange);
+    border-radius:8px; padding:12px 14px; margin:12px 0; font-size:14px;
+  }
+  .callout strong{color:var(--orange);}
+  .callout.warn{background:rgba(201,86,74,.14); border-left-color:var(--red);}
+  .callout.warn strong{color:var(--red);}
+  .badge-cat{
+    display:inline-block; font-size:11px; font-weight:700; padding:3px 9px;
+    border-radius:12px; margin-left:8px; text-transform:uppercase; letter-spacing:.04em;
+    background:var(--orange-soft); color:var(--orange);
+  }
+
+  /* --- QCM --- */
+  .qcm-controls{
+    display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; align-items:center;
+  }
+  .score-box{
+    margin-left:auto; background:var(--bg-card); border:1px solid var(--border);
+    padding:8px 16px; border-radius:20px; font-size:13px; font-weight:700; color:var(--text-dim);
+  }
+  .score-box span{color:var(--orange);}
+  .qbtn{
+    background:var(--bg-card); border:1px solid var(--border); color:var(--text-dim);
+    padding:8px 14px; border-radius:20px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .qbtn:hover{border-color:var(--orange); color:var(--orange);}
+  .question{
+    background:var(--bg-card); border:1px solid var(--border); border-radius:14px;
+    padding:18px; margin-bottom:14px;
+  }
+  .question .qhead{display:flex; justify-content:space-between; gap:10px; margin-bottom:10px;}
+  .question .qnum{color:var(--orange); font-weight:800; font-size:13px;}
+  .question p.qtext{margin:0 0 14px; font-size:15.5px; font-weight:600;}
+  .options{display:flex; flex-direction:column; gap:8px;}
+  .option{
+    background:var(--bg-soft); border:1px solid var(--border); border-radius:10px;
+    padding:10px 14px; cursor:pointer; font-size:14.5px; transition:border-color .15s;
+  }
+  .option:hover{border-color:var(--orange);}
+  .option.correct{border-color:var(--green); background:rgba(95,174,114,.14); color:#c9e8d1;}
+  .option.incorrect{border-color:var(--red); background:rgba(201,86,74,.14); color:#f0c6c1;}
+  .option.disabled{cursor:default; pointer-events:none;}
+  .explain{
+    margin-top:12px; padding:12px 14px; border-radius:10px; font-size:13.5px;
+    background:var(--bg-soft); border-left:3px solid var(--orange); display:none; color:var(--text-dim);
+  }
+  .explain.show{display:block;}
+  footer{text-align:center; color:var(--text-dim); font-size:12.5px; padding:20px; opacity:.6;}
+  @media(max-width:600px){
+    .score-box{margin-left:0; width:100%; text-align:center;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="back" href="index.html">← Accueil</a>
+  <div class="brand">CQPM-289 <span>Révision ATA 38</span></div>
+</div>
+
+<header class="hero">
+  <div class="eyebrow">ATA 38 · Eau & Déchets (M11.17 — Partie 66 cat. B1.1)</div>
+  <h1>Eau potable, eaux grises & toilettes</h1>
+  <p class="lead">Synthèse basée en priorité sur tes notes de cours (Cosmonote + notes perso) pour rester ciblée sur ce qui a réellement été traité en classe, avec le CFA 1321 en appui pour les précisions techniques. QCM avec mélange aléatoire des questions et des réponses à chaque lancement.</p>
+  <div class="meta-row">
+    <span class="pill">🎙️ Notes Cosmonote + notes perso</span>
+    <span class="pill">📘 CFA 1321 en complément</span>
+    <span class="pill">🔀 37 questions, ordre & réponses mélangés</span>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" data-view="cours">📖 Cours</button>
+  <button class="tab-btn" data-view="qcm">📝 QCM</button>
+</div>
+
+<main>
+
+  <!-- ===================== COURS ===================== -->
+  <div class="view active" id="view-cours">
+
+    <div class="section open">
+      <div class="section-head">
+        <h2><span class="num">01</span>Eau potable & traitement</h2>
+        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body"><div class="inner">
+        <ul>
+          <li>L'eau de consommation ne doit contenir <strong>aucun germe nocif, ni odeur, ni goût, ni couleur</strong>.</li>
+          <li>Elle alimente les galleys et toilettes via un ou plusieurs réservoirs, et sert aussi au <strong>rinçage des cuves de toilettes</strong>.</li>
+          <li>Le circuit doit rester potable <strong>dans l'avion et à chaque escale</strong>.</li>
+          <li>Un filtre à charbon actif (<strong>« épurateur »</strong>) élimine/diminue les polluants et améliore le goût de l'eau en éliminant le chlore → cartouche <strong>Everpure</strong>, à remplacer régulièrement selon les procédures de maintenance.</li>
+        </ul>
+        <h3>Méthodes de désinfection</h3>
+        <ul>
+          <li><strong>Chlore (eau de javel)</strong> : méthode la plus simple et économique.</li>
+          <li><strong>Ozone</strong> : procédé plus neutre.</li>
+          <li><strong>UV</strong> : possible mais plus coûteux. Autres méthodes existantes : chauffage à 70°C, permanganate de potassium.</li>
+          <li>Sur le <strong>Boeing 787</strong>, un module de nettoyage UV est directement intégré au circuit.</li>
+          <li>Les outils/ozonneurs utilisés pour le traitement doivent être <strong>stockés dans des emplacements dédiés, protégés de toute contamination</strong>, et nettoyés après chaque usage.</li>
+        </ul>
+        <div class="callout"><strong>À retenir :</strong> pression normale du circuit d'eau potable (réservoir régulé par détendeur) : <strong>22 à 25 PSI</strong>.</div>
+      </div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <h2><span class="num">02</span>Réservoirs, pressurisation & jaugeage</h2>
+        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body"><div class="inner">
+        <ul>
+          <li>Réservoirs situés en <strong>soute arrière</strong> (nombre variable selon l'avion/sa version), en acier inoxydable, équipés d'un <strong>jaugeur</strong> et d'un <strong>clapet de surpression</strong>.</li>
+          <li>Mise en pression : soit <strong>pneumatique</strong> (prélèvement ATA 36), soit par <strong>pompe électrique</strong> — une pompe électrique délivre environ <strong>15 litres</strong> d'eau.</li>
+          <li>Raccords du circuit : <strong>Wiggins</strong>, <strong>wig-o-flex</strong>, ou <strong>quick coupling clamps</strong>.</li>
+          <li>Jaugeage : aujourd'hui réalisé par <strong>jauges capacitives</strong> (anciennement par flotteur).</li>
+          <li>Le système d'eau potable est <strong>gérable depuis le FAP</strong> (Flight Attendant Panel).</li>
+        </ul>
+        <div class="callout"><strong>Précision (CFA 1321, source qui fait foi) :</strong> le réservoir est en <strong>acier inoxydable recouvert de fibre de verre</strong> (et non « fibre de carbone » comme indiqué par erreur dans une note de cours perso — corrigé ici).</div>
+      </div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <h2><span class="num">03</span>Chauffe-eau (lavabo & galley)</h2>
+        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body"><div class="inner">
+        <ul>
+          <li>Une <strong>résistance chauffante</strong> chauffe rapidement l'eau des éviers/lavabos.</li>
+          <li>Température d'eau chaude délivrée : <strong>32 à 46°C</strong>. Une <strong>sonde thermostatique</strong> régule entre <strong>30 et 50°C</strong>, avec un <strong>thermocontact de surchauffe</strong> en cas de défaillance de la sonde.</li>
+          <li><strong>3 positions du switch water heater</strong> : <strong>ON</strong> (bypass les protections), <strong>OFF</strong>, <strong>ARMED</strong> (fonctionnement normal, protections actives).</li>
+          <li>Chauffe-eau galley : 1 ou 2 réservoirs internes selon le type, toujours équipé d'un <strong>orifice de vidange</strong> et d'un <strong>clapet de surpression</strong>.</li>
+          <li>2 voyants sur le chauffe-eau galley : l'un indique qu'il est <strong>alimenté</strong>, l'autre s'<strong>éteint quand l'eau est chaude</strong>.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <h2><span class="num">04</span>Eaux grises, GWIV & drain mast</h2>
+        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body"><div class="inner">
+        <ul>
+          <li>La <strong>GWIV</strong> (Grey Water Interface Valve) libère les eaux usées des éviers de galley vers le <strong>drain mast</strong> (mât de drainage), qui éjecte les eaux grises.</li>
+          <li>Évacuation <strong>non continue</strong> : la vanne s'ouvre ponctuellement une fois qu'un certain niveau/volume est atteint.</li>
+          <li>La GWIV est équipée d'un <strong>ruban chauffant antigivrage</strong> car elle est située sur le <strong>cargo bulk</strong> (zone exposée au froid).</li>
+        </ul>
+        <h3>Logique de dégivrage sol/vol</h3>
+        <ul>
+          <li>Au sol : peu d'énergie nécessaire (pas besoin de dégivrer) → <strong>28V DC</strong>.</li>
+          <li>En vol : besoin important d'énergie pour dégivrer → <strong>115V AC</strong>.</li>
+          <li>La commutation est gérée par un <strong>relais air/sol</strong>.</li>
+          <li>Sur <strong>groupe de parc</strong> au sol : alimentation en <strong>28V DC</strong> également, pour éviter tout risque de surchauffe.</li>
+          <li>Les conduites sous plancher, très froides, sont protégées par des <strong>rubans chauffants</strong> en complément du drain mast chauffé (éviter gel, bouchons de givre, perte d'eau utilisable).</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <h2><span class="num">05</span>Circuit toilettes — ancienne génération</h2>
+        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body"><div class="inner">
+        <div class="callout">📌 Anecdote (précisée après vérification) : le <strong>Boeing 314 Clipper</strong> effectue son premier vol le 7 juin <strong>1938</strong>, mais c'est lors de son entrée en service commercial en <strong>1939</strong> (premier vol transatlantique régulier) que sont apparues les <strong>premières toilettes à chasse d'eau sur un avion de transport commercial</strong>.</div>
+        <ul>
+          <li>Chaque bloc sanitaire comporte un dispositif de nettoyage : <strong>pompe de rinçage + solution désinfectante</strong>.</li>
+          <li><strong>Vidange à chaque escale</strong>, réalisée via le panneau d'accès situé sous l'avion.</li>
+          <li>Le système comprend un <strong>poussoir de commande</strong> et une <strong>minuterie</strong> — cette dernière évite que le circuit reste ouvert trop longtemps (risque de <strong>dépressurisation cabine</strong>).</li>
+          <li>La <strong>vidange s'effectue par gravité</strong>.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <h2><span class="num">06</span>Circuit toilettes à dépression</h2>
+        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body"><div class="inner">
+        <ul>
+          <li>Principe : nettoyage de la cuve avec de l'eau prélevée sur le circuit d'eau potable, puis évacuation par <strong>aspiration</strong> vers les réservoirs de récupération.</li>
+          <li><strong>Au-dessus de 16 000 ft</strong> : l'aspiration est assurée par la <strong>différence de pression</strong> entre cabine et extérieur.</li>
+          <li><strong>En dessous de 16 000 ft</strong> : ce différentiel est augmenté par le <strong>vacuum blower</strong> (via une vanne de drainage).</li>
+          <li>Le vacuum blower est alimenté en <strong>115V AC 400Hz</strong>, avec une protection qui le coupe en cas de surchauffe.</li>
+          <li>Le <strong>FCU</strong> (Flush Control Unit), un par toilette, gère précisément le cycle : il met en route la pompe à dépression, puis <strong>1 seconde</strong> après ouvre la vanne d'admission d'eau durant <strong>1 seconde (~0,2 litre)</strong>, et <strong>2 secondes</strong> après le début de la séquence, ouvre la vanne de drainage durant <strong>4 secondes</strong>. Un nouveau cycle ne peut démarrer que <strong>15 secondes</strong> après le début du précédent.</li>
+          <li>Le <strong>contrôleur logique du système de vidange</strong> (un par réservoir de récupération) surveille le circuit : il allume le voyant <strong>« Full »</strong> au panneau chef de cabine (FAP) lors d'un trop-plein, inhibe le fonctionnement des toilettes associées quand une sonde détecte le plein, et <strong>inhibe le fonctionnement des autres toilettes durant 5 secondes</strong> pendant qu'une toilette est en cycle de nettoyage — pour éviter que plusieurs flush ne se déclenchent simultanément.</li>
+          <li>Quand le réservoir d'eaux noires est plein : les <strong>lavatory passent automatiquement en « off »</strong> sur le FAP, et le PNC ferme les accès.</li>
+          <li>La <strong>valve anti-siphon</strong> dans les lavatory est l'équivalent d'un <strong>clapet anti-retour</strong>.</li>
+          <li>Sécurité : la poubelle des toilettes intègre un <strong>système anti-incendie prêt à éteindre un feu avec de l'eau</strong>.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <h2><span class="num">07</span>Maintenance, documentation & sécurité</h2>
+        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="section-body"><div class="inner">
+        <ul>
+          <li><strong>MOE</strong> : Manuel de l'Organisme d'Entretien.</li>
+          <li><strong>ACL</strong> (Aircraft Cabin Logbook) : lié au PNC / cabinard.</li>
+          <li><strong>ATL</strong> (Aircraft Technical Logbook) : lié au PNT / mécanicien avion.</li>
+          <li>Utiliser des <strong>outils dédiés et désinfectés</strong> pour toute intervention sur les circuits toilettes (éviter les outils non dédiés — risque de contamination croisée).</li>
+          <li>Le <strong>servicing panel</strong> permet de remplir le circuit d'eau, vider les eaux noires, et nettoyer.</li>
+          <li><strong>Aucune fuite au sol n'est tolérée</strong> : une trace bleue ou de la glace bleue au niveau du panneau de vidange signale une fuite du circuit toilettes à traiter immédiatement.</li>
+          <li>Changer périodiquement le <strong>filtre de rinçage (Winsfilter)</strong> du système de toilettes.</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+
+  <!-- ===================== QCM ===================== -->
+  <div class="view" id="view-qcm">
+    <div class="qcm-controls">
+      <button class="qbtn" id="reset-btn">🔀 Relancer (mélange questions & réponses)</button>
+      <div class="score-box">Score : <span id="score-val">0</span> / <span id="score-total">0</span></div>
+    </div>
+    <div id="qcm-container"></div>
+  </div>
+
+</main>
+
+<footer>CQPM-289 Mécanicien Cabine Aéronautique — Révision ATA 38 (Eau & Déchets), générée à partir des notes de cours personnelles, en appui sur le CFA 1321.</footer>
+
+<script>
+// ---------- Accordéon Cours ----------
+document.querySelectorAll('.section-head').forEach(head=>{
+  head.addEventListener('click', ()=>{
+    head.parentElement.classList.toggle('open');
+  });
+});
+
+// ---------- Tabs ----------
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('view-'+btn.dataset.view).classList.add('active');
+  });
+});
+
+// ---------- QCM DATA (base fixe, jamais modifiée) ----------
+const baseQuestions = [
+  {q:"Que signifie GWIV ?", opts:["Grey Water Interface Valve","Global Water Isolation Valve","Ground Water Inlet Valve","Grey Waste Indicator Valve"], correct:0, exp:"La GWIV (Grey Water Interface Valve) libère les eaux usées des éviers des galleys vers le drain mast."},
+  {q:"Pourquoi la GWIV est-elle équipée d'un ruban chauffant antigivrage ?", opts:["Elle est en contact direct avec l'eau potable chaude","Elle est située sur le cargo bulk, zone exposée au froid","Elle fonctionne uniquement à très haute altitude","Elle est reliée directement au réacteur"], correct:1, exp:"La GWIV se situe sur le cargo bulk, une zone exposée au froid, d'où la nécessité d'un ruban chauffant antigivrage."},
+  {q:"Comment la GWIV évacue-t-elle les eaux grises ?", opts:["En continu pendant tout le vol","Uniquement par gravité, sans vanne","Par ouverture ponctuelle une fois un certain niveau atteint","Uniquement au sol, jamais en vol"], correct:2, exp:"L'évacuation n'est pas continue : la vanne s'ouvre ponctuellement une fois qu'un certain niveau/volume est atteint."},
+  {q:"Quelles tensions alimentent le dégivrage du drain mast au sol et en vol ?", opts:["115V AC au sol / 28V DC en vol","28V DC au sol / 115V AC en vol","28V DC dans les deux cas","115V AC dans les deux cas"], correct:1, exp:"Au sol, peu d'énergie est nécessaire (28V DC) ; en vol, l'énergie nécessaire au dégivrage est plus importante (115V AC)."},
+  {q:"Qu'est-ce qui commande la commutation de tension du dégivrage entre sol et vol ?", opts:["Un relais air/sol","Un interrupteur manuel PNC","Le FCU","La capsule barométrique"], correct:0, exp:"La commutation est réalisée par un relais commandé par le relais air/sol."},
+  {q:"Quelle tension alimente le dégivrage lorsque l'avion est sur groupe de parc au sol ?", opts:["115V AC","230V AC","28V DC, pour éviter tout risque de surchauffe","Aucune alimentation n'est prévue"], correct:2, exp:"En groupe de parc au sol, l'alimentation reste en 28V DC pour éviter tout risque de surchauffe."},
+  {q:"Quelle cartouche filtrante à charbon actif doit être remplacée régulièrement sur le circuit d'eau potable ?", opts:["Cartouche Everpure","Filtre Winsfilter","Filtre HEPA","Cartouche GWIV"], correct:0, exp:"Le filtre à charbon actif « épurateur » utilise des cartouches Everpure, à remplacer régulièrement."},
+  {q:"Quel filtre doit être changé périodiquement sur le système de rinçage des toilettes ?", opts:["Cartouche Everpure","Filtre Winsfilter","Filtre GWIV","Filtre HEPA"], correct:1, exp:"Le filtre de rinçage (Winsfilter) du système de toilettes doit être changé périodiquement — distinct de la cartouche Everpure de l'eau potable."},
+  {q:"Quelles méthodes de désinfection de l'eau potable sont les plus utilisées selon les notes de cours ?", opts:["Uniquement les UV, aucune autre méthode","Chlore et ozone principalement, UV possible mais coûteux","Uniquement le chauffage à 70°C","Uniquement le chlore, aucune autre méthode n'existe"], correct:1, exp:"Le chlore (eau de javel) et l'ozone sont les méthodes principales ; le traitement UV est possible mais plus coûteux."},
+  {q:"Sur quel avion un module de nettoyage UV est-il directement intégré au circuit d'eau ?", opts:["Airbus A320","Boeing 737","Boeing 787","Airbus A310"], correct:2, exp:"Sur le Boeing 787, un module de nettoyage UV est intégré directement au circuit d'eau."},
+  {q:"Quelle est la pression normale du circuit d'eau potable au niveau du réservoir ?", opts:["22 à 25 PSI","30 à 39 PSI","60 PSI","100 PSI"], correct:0, exp:"Le détendeur maintient une pression comprise entre 22 et 25 PSI à l'intérieur du réservoir."},
+  {q:"Quel volume d'eau une pompe électrique de mise en pression délivre-t-elle environ ?", opts:["5 litres","15 litres","50 litres","200 litres"], correct:1, exp:"Une pompe électrique de mise en pression délivre environ 15 litres d'eau."},
+  {q:"Quels types de raccords sont cités pour le circuit d'eau potable ?", opts:["Raccords BNC","Raccords Luer-lock","Wiggins, wig-o-flex, quick coupling clamps","Raccords Cardan uniquement"], correct:2, exp:"Les raccords cités sont de type Wiggins, wig-o-flex, ou quick coupling clamps."},
+  {q:"Quel type de jauge est aujourd'hui utilisé pour le jaugeage des réservoirs d'eau (par rapport à l'ancien système à flotteur) ?", opts:["Jauge à ultrasons","Jauge capacitive","Jauge mécanique à ressort","Jauge optique"], correct:1, exp:"Le jaugeage se fait aujourd'hui par jauges capacitives, alors qu'anciennement il se faisait par flotteur."},
+  {q:"Depuis quel panneau le système d'eau potable est-il gérable par le PNC ?", opts:["Le FAP (Flight Attendant Panel)","Le panneau électrique général","Le cockpit uniquement","Le panneau de servicing extérieur uniquement"], correct:0, exp:"Le système d'eau potable est manageable depuis le FAP (Flight Attendant Panel)."},
+  {q:"Que signifie ACL et à qui est-il lié ?", opts:["Aircraft Cargo Log, lié au fret","Aircraft Cabin Logbook, lié au PNC/cabinard","Air Conditioning Log, lié à la climatisation","Aircraft Cleaning List, lié au nettoyage"], correct:1, exp:"L'ACL (Aircraft Cabin Logbook) est le registre lié au PNC/cabinard."},
+  {q:"Que signifie ATL et à qui est-il lié ?", opts:["Aircraft Toilet Log","Air Transport License","Aircraft Technical Logbook, lié au PNT/mécanicien avion","Aircraft Temperature Log"], correct:2, exp:"L'ATL (Aircraft Technical Logbook) est le registre lié au PNT/mécanicien avion."},
+  {q:"Quelles sont les 3 positions du switch du chauffe-eau (water heater) ?", opts:["AUTO / MANUAL / OFF","HIGH / LOW / OFF","ON / STANDBY / OFF","ON / OFF / ARMED"], correct:3, exp:"Le switch du water heater possède 3 positions : ON, OFF, ARMED."},
+  {q:"Que se passe-t-il en position ON du chauffe-eau ?", opts:["Le chauffe-eau est complètement coupé","Les protections sont bypassées","Fonctionnement normal, toutes protections actives","Cette position n'existe pas sur ce système"], correct:1, exp:"En position ON, les protections normales sont bypassées."},
+  {q:"Quelle position du switch chauffe-eau correspond au fonctionnement normal, protections actives ?", opts:["ON","STANDBY","ARMED","OFF"], correct:2, exp:"La position ARMED correspond au fonctionnement normal, avec toutes les protections actives."},
+  {q:"Entre quelles températures se situe l'eau chaude délivrée par le chauffe-eau ?", opts:["10 à 20°C","32 à 46°C","50 à 70°C","0 à 10°C"], correct:1, exp:"L'eau chaude délivrée est comprise entre 32 et 46°C."},
+  {q:"Quelle est la plage de régulation de la sonde thermostatique du chauffe-eau ?", opts:["20 à 40°C","60 à 90°C","30 à 50°C","0 à 30°C"], correct:2, exp:"La sonde thermostatique régule la température entre 30 et 50°C, avec un thermocontact de surchauffe en secours."},
+  {q:"Quels équipements sont toujours présents sur un chauffe-eau galley, quel que soit son type ?", opts:["Une pompe de rinçage","Un détecteur d'incendie intégré","Un orifice de vidange et un clapet de surpression","Un thermostat unique sans clapet"], correct:2, exp:"Que le chauffe-eau galley ait 1 ou 2 réservoirs, il possède toujours un orifice de vidange et un clapet de surpression."},
+  {q:"Que signifient les deux voyants d'un chauffe-eau galley ?", opts:["Les deux indiquent la même information","Un pour ON, l'autre pour OFF uniquement","Un indique une fuite, l'autre une surchauffe","Un indique qu'il est alimenté, l'autre s'éteint quand l'eau est chaude"], correct:3, exp:"Un voyant indique que le chauffe-eau est alimenté ; l'autre s'éteint lorsque l'eau atteint la température souhaitée."},
+  {q:"Sur quel avion et à quelle occasion les premières toilettes à chasse d'eau sur un avion de transport commercial sont-elles apparues ?", opts:["Douglas DC-3, en 1935","Boeing 707, en 1958","Boeing 314 Clipper, lors de son entrée en service commercial en 1939","Concorde, en 1969"], correct:2, exp:"Le Boeing 314 Clipper a effectué son premier vol en 1938, mais c'est lors de son entrée en service commercial en 1939 que sont apparues les premières toilettes à chasse d'eau sur un avion de transport."},
+  {q:"Dans le circuit toilettes à dépression, comment les déchets sont-ils évacués au-dessus de 16 000 ft ?", opts:["Par une pompe électrique dédiée en continu","Par la différence de pression entre cabine et extérieur","Uniquement par le vacuum blower","Par simple gravité"], correct:1, exp:"Au-dessus de 16 000 ft, la différence de pression entre cabine et extérieur suffit à aspirer les déchets."},
+  {q:"En dessous de 16 000 ft, qu'est-ce qui augmente le différentiel de pression pour l'aspiration des déchets ?", opts:["Un ventilateur cabine classique","Le compresseur de climatisation","Le vacuum blower, via une vanne de drainage","Rien, l'aspiration est coupée en dessous de 16 000 ft"], correct:2, exp:"En dessous de 16 000 ft, le vacuum blower augmente le différentiel de pression via une vanne de drainage."},
+  {q:"Comment le vacuum blower est-il alimenté électriquement ?", opts:["28V DC","115V AC 400Hz","230V AC 50Hz","Uniquement pneumatique"], correct:1, exp:"Le vacuum blower est alimenté en 115V AC 400Hz, avec une protection qui le coupe en cas de surchauffe."},
+  {q:"Quel composant gère la temporisation du cycle de rinçage (flush) des toilettes ?", opts:["Le GWIV","L'ACL","Le FCU (Flush Control Unit)","Le CPC"], correct:2, exp:"Le FCU (Flush Control Unit) gère la temporisation du cycle de flush, un par toilette."},
+  {q:"Selon le CFA 1321, combien de temps faut-il attendre avant qu'un nouveau cycle de flush ne puisse redémarrer ?", opts:["5 secondes","10 secondes","15 secondes","30 secondes"], correct:2, exp:"Un nouveau cycle ne peut démarrer que 15 secondes après le début du précédent (durée totale du cycle FCU)."},
+  {q:"Pendant le cycle de nettoyage d'une toilette, pendant combien de temps le contrôleur logique inhibe-t-il le fonctionnement des autres toilettes du même réservoir ?", opts:["2 secondes","5 secondes","15 secondes","1 minute"], correct:1, exp:"Le contrôleur logique inhibe le fonctionnement des autres toilettes durant 5 secondes pendant qu'une toilette est en cycle de nettoyage."},
+  {q:"Que se passe-t-il quand le réservoir d'eaux noires est plein ?", opts:["Rien de spécial, le système continue normalement","Les lavatory passent automatiquement en off sur le FAP et le PNC ferme les accès","L'avion doit atterrir immédiatement","Seul un voyant s'allume, sans autre action"], correct:1, exp:"Quand le réservoir d'eaux noires est plein, les lavatory sont automatiquement mises en off sur le FAP et les PNC ferment les accès."},
+  {q:"Quel équivalent fonctionnel la valve anti-siphon représente-t-elle dans les lavatory ?", opts:["Une vanne de drainage","Un capteur de niveau","Un détendeur","Un clapet anti-retour"], correct:3, exp:"La valve anti-siphon est l'équivalent d'un clapet anti-retour."},
+  {q:"Que fait le contrôleur logique du système de vidange toilette (un par réservoir) ?", opts:["Il chauffe l'eau du réservoir","Il pressurise le circuit d'eau potable","Il indique sur le FAP quand le réservoir est plein et coordonne les FCU pour éviter plusieurs flush simultanés","Il gère uniquement l'éclairage des toilettes"], correct:2, exp:"Il indique le niveau plein sur le FAP et communique avec les FCU pour éviter que plusieurs flush se déclenchent en même temps."},
+  {q:"Quel dispositif de sécurité se trouve dans la poubelle des toilettes ?", opts:["Un extincteur à halon","Un détecteur de fumée relié uniquement au cockpit","Un système anti-incendie prêt à éteindre un feu avec de l'eau","Aucun dispositif spécifique"], correct:2, exp:"La poubelle des toilettes intègre un système anti-incendie prêt à éteindre un potentiel feu avec de l'eau."},
+  {q:"Que signale une trace bleue ou de la glace bleue au niveau du panneau de vidange ?", opts:["Un fonctionnement normal","Une fuite du circuit toilettes — aucune fuite au sol n'est tolérée","Un simple résidu de nettoyage sans conséquence","Une surchauffe électrique"], correct:1, exp:"Une trace bleue ou de la glace bleue signale une fuite du circuit toilettes ; aucune fuite au sol n'est tolérée."},
+  {q:"Que permet le servicing panel (panneau de servicing) ?", opts:["Uniquement remplir l'eau potable","Uniquement vidanger les eaux noires","Remplir le circuit d'eau, vider les eaux noires, et nettoyer","Réinitialiser électroniquement le FCU"], correct:2, exp:"Le servicing panel permet de remplir le circuit d'eau, vider les eaux noires, et nettoyer."}
+];
+
+function shuffle(array){
+  const a = array.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let sessionQuestions = [];
+let userState = {};
+const container = document.getElementById('qcm-container');
+const scoreVal = document.getElementById('score-val');
+const scoreTotal = document.getElementById('score-total');
+
+function buildSession(){
+  const shuffledQ = shuffle(baseQuestions);
+  sessionQuestions = shuffledQ.map((q, i)=>{
+    const optIndices = shuffle(q.opts.map((_, idx)=>idx));
+    const newOpts = optIndices.map(idx => q.opts[idx]);
+    const newCorrect = optIndices.indexOf(q.correct);
+    return {id:i, q:q.q, opts:newOpts, correct:newCorrect, exp:q.exp};
+  });
+  userState = {};
+}
+
+function render(){
+  container.innerHTML = '';
+  sessionQuestions.forEach((q, displayIdx)=>{
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.innerHTML = `
+      <div class="qhead">
+        <span class="qnum">Question ${displayIdx+1}/${sessionQuestions.length}</span>
+        <span class="badge-cat">ATA 38</span>
+      </div>
+      <p class="qtext">${q.q}</p>
+      <div class="options">
+        ${q.opts.map((o,oi)=>`<div class="option" data-idx="${q.id}" data-oi="${oi}">${o}</div>`).join('')}
+      </div>
+      <div class="explain" id="exp-${q.id}">💡 ${q.exp}</div>
+    `;
+    container.appendChild(div);
+  });
+  attachHandlers();
+  updateScore();
+}
+
+function attachHandlers(){
+  document.querySelectorAll('.option').forEach(opt=>{
+    opt.addEventListener('click', function(){
+      const qi = parseInt(this.dataset.idx);
+      if(userState[qi] !== undefined) return;
+      const oi = parseInt(this.dataset.oi);
+      userState[qi] = oi;
+      const q = sessionQuestions.find(x=>x.id === qi);
+      const group = this.parentElement.querySelectorAll('.option');
+      group.forEach(o=>o.classList.add('disabled'));
+      group[q.correct].classList.add('correct');
+      if(oi !== q.correct){ this.classList.add('incorrect'); }
+      document.getElementById('exp-'+qi).classList.add('show');
+      updateScore();
+    });
+  });
+}
+
+function updateScore(){
+  let correctCount = 0, answered = 0;
+  sessionQuestions.forEach(q=>{
+    if(userState[q.id] !== undefined){
+      answered++;
+      if(userState[q.id] === q.correct) correctCount++;
+    }
+  });
+  scoreVal.textContent = correctCount;
+  scoreTotal.textContent = sessionQuestions.length;
+}
+
+document.getElementById('reset-btn').addEventListener('click', ()=>{
+  buildSession();
+  render();
+});
+
+buildSession();
+render();
+</script>
+</body>
+</html>
